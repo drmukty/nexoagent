@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NOTE: no key / key_hash column exists anywhere. Private keys never reach the server.
+model User {
+  id            String         @id @default(uuid()) @db.Uuid
+  walletAddress String         @unique @map("wallet_address")
+  xp            Int            @default(0)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  bets          Bet[]
+  notifications Notification[]
+  analyses      Analysis[]
+
+  @@index([xp(sort: Desc), createdAt])
+  @@map("users")
+}
+
+// Server-side record of what /analyse returned. Bets read entry/target/stop from here, never from the client.
+model Analysis {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  tokenSymbol String   @map("token_symbol")
+  tokenCa     String   @map("token_ca")
+  network     String
+  poolAddress String   @map("pool_address")
+  direction   String // LONG | SHORT
+  entryPrice  Float    @map("entry_price")
+  targetPrice Float    @map("target_price")
+  stopPrice   Float    @map("stop_price")
+  createdAt   DateTime @default(now()) @map("created_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("analyses")
+}
+
+model Bet {
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  analysisId   String    @unique @map("analysis_id") @db.Uuid // one bet per analysis result
+  tokenSymbol  String    @map("token_symbol")
+  tokenCa      String    @map("token_ca")
+  network      String
+  poolAddress  String    @map("pool_address")
+  aiDirection  String    @map("ai_direction") // LONG | SHORT
+  entryPrice   Float     @map("entry_price")
+  targetPrice  Float     @map("target_price")
+  stopPrice    Float     @map("stop_price")
+  userChoice   String    @map("user_choice") // AGREE | DISAGREE
+  status       String    @default("PENDING") // PENDING | WON | LOST
+  xpAwarded    Int?      @map("xp_awarded")
+  resolvePrice Float?    @map("resolve_price")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  resolvesAt   DateTime  @map("resolves_at")
+  resolvedAt   DateTime? @map("resolved_at")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, resolvesAt])
+  @@index([userId, createdAt])
+  @@map("bets")
+}
+
+model Notification {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  message   String
+  xpChange  Int      @map("xp_change")
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+// One-time sign-in challenges (wallet ownership proof).
+model Challenge {
+  id        String    @id @default(uuid()) @db.Uuid
+  message   String
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("challenges")
+}
