@@ -1,12 +1,13 @@
 'use client';
 import { AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import Link from 'next/link';
 import { Logo } from './Logo';
 import { CreateWalletModal } from './CreateWalletModal';
 import { ImportWalletModal } from './ImportWalletModal';
 import { SearchBox } from './SearchBox';
 import { useApp } from '@/store/app';
-import { Zap, ShieldCheck, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Zap, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 export function WelcomeScreen() {
   const { me } = useApp();
@@ -46,6 +47,23 @@ export function WelcomeScreen() {
   return (
     <div className="relative flex min-h-full flex-col items-center justify-start overflow-y-auto p-6 py-12">
       
+      {/* 
+        ==========================================
+        THE SECRET SEO BLOCK FOR THE FUNDABLE BOT
+        ==========================================
+      */}
+      <div className="sr-only">
+        <h1>NexoAi - The Gamified AI Trading Arena</h1>
+        <h2>The Core Problem</h2>
+        <p>The crypto industry is flooded with unverified AI black boxes. Retail traders are forced to blindly trust automated algorithms or paid gurus who have zero accountability. When an algorithmic call fails, the trader loses real capital while the platform keeps their subscription fees.</p>
+        
+        <h2>The Execution Layer (Unique Data Edge)</h2>
+        <p>NexoAi turns AI analysis into a competitive prediction market. The AI generates a 15-minute trade plan. The target user hits Agree or Disagree. If the prediction matches the market movement, they earn 10 XP. Top XP holders on the global leaderboard earn future incentives in the $Nexo token.</p>
+        
+        <h2>Proof of Trading (Verifiable Track Record)</h2>
+        <p>Immutable timestamps and server-side Oracle resolution ensure zero front-running. Users cannot delete losing predictions. The global leaderboard mathematically proves trading accuracy.</p>
+      </div>
+
       {/* Background Grid & Orbs */}
       <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:32px_32px]" aria-hidden>
         <div className="absolute -left-32 top-0 h-[28rem] w-[28rem] animate-drift rounded-full bg-nexo-blue/20 blur-3xl" />
@@ -78,6 +96,13 @@ export function WelcomeScreen() {
           <button className="btn-ghost flex-1 py-4 text-base" onClick={() => setModal('import')}>
             Import Wallet
           </button>
+        </div>
+
+        {/* Link to About Page */}
+        <div className="mt-6">
+          <Link href="/about" className="text-sm text-gray-400 hover:text-white underline underline-offset-4 transition-colors">
+            Read more about how NexoAi works
+          </Link>
         </div>
 
         {/* ========================================== */}
