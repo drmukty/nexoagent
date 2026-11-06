@@ -15,7 +15,7 @@ function retryFor(r: ErrorResult, run: (c: CommandName, q: string) => Promise<vo
 }
 
 export function ChatResultBox() {
-  const { messages, run, setView } = useApp();
+  const { messages, chatHistory, run, startNewChat, loadChatHistory, deleteChatHistory } = useApp();
   const [showHistory, setShowHistory] = useState(false);
   const end = useRef<HTMLDivElement>(null);
 
@@ -24,12 +24,6 @@ export function ChatResultBox() {
     end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); 
   }, [messages]);
 
-  // Extract past user searches for the history drawer
-  const pastSearches = messages
-    .filter((m) => m.role === 'user' && m.text)
-    .map((m) => m.text as string)
-    .reverse(); // Newest first
-
   return (
     <main className="flex-1 overflow-y-auto px-3 py-4 sm:px-5 relative" aria-live="polite">
       
@@ -37,26 +31,33 @@ export function ChatResultBox() {
       {showHistory && (
         <div className="absolute inset-y-0 left-0 z-20 w-72 border-r border-white/10 bg-[#0F1116] shadow-2xl p-4 overflow-y-auto">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-semibold text-white">Search History</h3>
+            <h3 className="font-display font-semibold text-white">Recent Chats</h3>
             <button onClick={() => setShowHistory(false)} className="text-gray-400 hover:text-white">
               <X className="h-4 w-4" />
             </button>
           </div>
           
-          {pastSearches.length === 0 ? (
-            <p className="text-sm text-gray-500">No history yet.</p>
+          {chatHistory.length === 0 ? (
+            <p className="text-sm text-gray-500">No recent chats yet.</p>
           ) : (
             <ul className="space-y-2">
-              {pastSearches.map((search, i) => (
-                <li key={i} className="flex items-center justify-between group rounded-lg bg-white/5 px-3 py-2 text-sm font-mono text-gray-300">
-                  <span className="truncate">{search}</span>
+              {chatHistory.map((chat) => (
+                <li key={chat.id} className="flex items-center justify-between group rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
                   <button 
                     onClick={() => {
+                      loadChatHistory(chat.id);
                       setShowHistory(false);
                     }}
-                    className="text-gray-500 hover:text-nexo-red opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="flex-1 text-left px-3 py-2 text-sm font-mono text-gray-300 truncate"
                   >
-                    <X className="h-3 w-3" />
+                    {chat.title}
+                  </button>
+                  <button 
+                    onClick={() => deleteChatHistory(chat.id)}
+                    className="px-3 py-2 text-gray-500 hover:text-nexo-red"
+                    title="Delete chat"
+                  >
+                    <X className="h-4 w-4" />
                   </button>
                 </li>
               ))}
@@ -72,7 +73,7 @@ export function ChatResultBox() {
             <History className="h-3.5 w-3.5" /> Recent
           </button>
           <button 
-            onClick={() => setView('home')}
+            onClick={() => startNewChat()}
             className="tap flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-400 hover:text-white"
           >
             <Plus className="h-3.5 w-3.5" /> New Chat
