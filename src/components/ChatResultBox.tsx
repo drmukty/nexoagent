@@ -1,0 +1,53 @@
+'use client';
+import { useEffect, useRef } from 'react';
+import { useApp } from '@/store/app';
+import { LoadingSkeleton } from './LoadingSkeleton';
+import { AnalysisResultCard } from './AnalysisResultCard';
+import { MindshareResultCard } from './MindshareResultCard';
+import { ReportResultCard } from './ReportResultCard';
+import { ErrorCard } from './ResultParts';
+import type { CommandName, ErrorResult } from '@/types';
+
+function retryFor(r: ErrorResult, run: (c: CommandName, q: string) => Promise<void>) {
+  const { retryable, command, query } = r;
+  return retryable && command && query ? () => run(command as CommandName, query) : undefined;
+}
+
+export function ChatResultBox() {
+  const { messages, run } = useApp();
+  const end = useRef<HTMLDivElement>(null);
+  useEffect(() => { end.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [messages]);
+
+  return (
+    <main className="flex-1 overflow-y-auto px-3 py-4 sm:px-5" aria-live="polite">
+      <div className="mx-auto flex max-w-3xl flex-col gap-4">
+        {messages.length === 0 && (
+          <div className="glass mt-8 p-5 text-sm text-gray-400">
+            <p className="font-display text-base text-gray-200">Pick a command, then paste a contract address or ticker.</p>
+            <ul className="mt-3 space-y-1.5">
+              <li><span className="font-mono text-nexo-blue">/analyse</span> 15-minute trade signal you can bet on</li>
+              <li><span className="font-mono text-nexo-blue">/mindshare</span> X social intelligence for the last 24h</li>
+              <li><span className="font-mono text-nexo-blue">/report</span> full token intel snapshot</li>
+            </ul>
+          </div>
+        )}
+        {messages.map((m) =>
+          m.role === 'user' ? (
+            <div key={m.id} className="self-end rounded-2xl rounded-br-sm bg-nexo-blue/20 px-4 py-2 font-mono text-sm">{m.text}</div>
+          ) : m.pending ? (
+            <div key={m.id} className="glass p-4"><LoadingSkeleton lines={5} /></div>
+          ) : m.result?.kind === 'analyse' ? (
+            <AnalysisResultCard key={m.id} r={m.result} />
+          ) : m.result?.kind === 'mindshare' ? (
+            <MindshareResultCard key={m.id} r={m.result} />
+          ) : m.result?.kind === 'report' ? (
+            <ReportResultCard key={m.id} r={m.result} />
+          ) : m.result?.kind === 'error' ? (
+            <ErrorCard key={m.id} r={m.result} onRetry={retryFor(m.result, run)} />
+          ) : null,
+        )}
+        <div ref={end} />
+      </div>
+    </main>
+  );
+}
