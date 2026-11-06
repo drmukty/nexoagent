@@ -16,8 +16,8 @@ export function WelcomeScreen() {
   // ==========================================
   if (me) {
     return (
-      <main className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-y-auto p-6 pb-24">
-        <div className="relative z-10 flex w-full max-w-3xl flex-col items-center text-center">
+      <div className="flex min-h-full flex-col items-center justify-center p-6 pb-24 text-center">
+        <div className="relative z-10 flex w-full max-w-3xl flex-col items-center">
           <Logo size="xl" />
           
           <h1 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -52,7 +52,7 @@ export function WelcomeScreen() {
             <SearchBox />
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -60,7 +60,7 @@ export function WelcomeScreen() {
   // PRE-LOGIN VIEW
   // ==========================================
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden p-6">
+    <div className="relative flex min-h-full items-center justify-center overflow-hidden p-6">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div className="absolute -left-32 top-0 h-[28rem] w-[28rem] animate-drift rounded-full bg-nexo-blue/20 blur-3xl" />
         <div className="absolute -right-24 bottom-0 h-[26rem] w-[26rem] animate-drift rounded-full bg-nexo-purple/20 blur-3xl [animation-delay:-9s]" />
@@ -84,6 +84,6 @@ export function WelcomeScreen() {
         {modal === 'create' && <CreateWalletModal onClose={() => setModal(null)} />}
         {modal === 'import' && <ImportWalletModal onClose={() => setModal(null)} />}
       </AnimatePresence>
-    </main>
+    </div>
   );
 }
