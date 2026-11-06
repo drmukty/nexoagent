@@ -1,5 +1,7 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
 import { Panel } from './Panel';
 import { ConfirmModal } from './ConfirmModal';
 import { api } from '@/lib/client/api';
@@ -28,6 +30,7 @@ export default function ProfilePanel() {
     ['Rank', `#${me.rank}`],
     ['Joined', new Date(me.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })],
   ];
+
   return (
     <Panel title="Profile">
       <dl className="glass divide-y divide-white/10">
@@ -35,9 +38,32 @@ export default function ProfilePanel() {
           <div key={k} className="flex items-center justify-between px-4 py-3"><dt className="text-sm text-gray-400">{k}</dt><dd className="font-mono text-sm">{v}</dd></div>
         ))}
       </dl>
-      <button className="btn mt-8 w-full border border-nexo-red/40 text-nexo-red hover:bg-nexo-red/10" onClick={() => setConfirm(true)}>Delete account</button>
+      
+      {/* About NexoAi Link */}
+      <Link 
+        href="/about" 
+        className="glass mt-4 flex items-center justify-between px-4 py-3 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white"
+      >
+        <span>About NexoAi</span>
+        <ExternalLink className="h-4 w-4 text-gray-500" />
+      </Link>
+
+      <button className="btn mt-8 w-full border border-nexo-red/40 text-nexo-red hover:bg-nexo-red/10" onClick={() => setConfirm(true)}>
+        Delete account
+      </button>
       <p className="mt-2 text-xs text-gray-500">Deletes your XP, bets and notifications. Your key was never stored, so there is nothing else to remove.</p>
-      {confirm && <ConfirmModal title="Delete account" danger busy={busy} confirmLabel="Delete account" body="This permanently wipes your XP, rank, bets and notifications. You will return to the welcome screen." onCancel={() => setConfirm(false)} onConfirm={del} />}
+      
+      {confirm && (
+        <ConfirmModal 
+          title="Delete account" 
+          danger 
+          busy={busy} 
+          confirmLabel="Delete account" 
+          body="This permanently wipes your XP, rank, bets and notifications. You will return to the welcome screen." 
+          onCancel={() => setConfirm(false)} 
+          onConfirm={del} 
+        />
+      )}
     </Panel>
   );
 }
