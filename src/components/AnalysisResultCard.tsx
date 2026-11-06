@@ -22,7 +22,11 @@ export function AnalysisResultCard({ r }: { r: AnalyseResult }) {
   }
 
   return (
-    <CardShell title={`Analysis: ${r.symbol}`} footer={<>{NFA}{r.narrative === 'template' && ' Commentary is template-based because the AI narrative was unavailable.'}</>}>
+    <CardShell 
+      title={`Analysis: ${r.symbol}`} 
+      // FIXED: Removed the "Commentary is template-based..." text
+      footer={<>{NFA}</>}
+    >
       <dl className="space-y-1">
         <div className="flex gap-3"><dt className="w-36 shrink-0 text-gray-500">Token Symbol</dt><dd className="font-medium">{r.symbol}</dd></div>
         <div className="flex gap-3"><dt className="w-36 shrink-0 text-gray-500">Contract Address</dt><dd className="break-all font-mono text-xs leading-5">{r.ca}</dd></div>
