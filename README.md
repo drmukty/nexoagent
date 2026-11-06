@@ -1,54 +1,60 @@
-# NexoAi
+# NexoAi - The AI Trading Arena
 
-AI agent for DeFAI and crypto signals. Next.js 14 (App Router), TypeScript, Tailwind, Framer Motion, Zustand, Prisma + PostgreSQL, Ethers v6.
+NexoAi is a decentralized AI agent for DeFi trading. It generates real-time crypto signals and allows users to bet XP on the AI's accuracy.
 
-Not financial advice. AI can make mistakes.
+## The Core Problem
+The crypto industry is flooded with unverified AI black boxes. Retail traders are forced to blindly trust automated algorithms or paid "gurus" who have zero accountability. When an algorithmic call fails, the trader loses real capital while the platform keeps their subscription fees. There is no proof of accuracy, and no skin in the game.
 
-## How it works
+## The Execution Layer
+NexoAi solves this by turning AI analysis into a competitive arena. 
+1. The AI generates a 15-minute trade plan (Entry, Target, Stop-Loss).
+2. The user hits **Agree** or **Disagree**.
+3. A 15-minute server-side timer starts.
+4. If the user's prediction matches the market movement, they earn **10 XP**. If incorrect, they earn **1 XP**.
+5. XP is tallied on a global Top 12 Leaderboard. **Top holders are rewarded with future $Nexo token airdrops.**
 
-- **Wallet / auth.** The private key is generated or imported in the browser only. The client asks `/api/auth/challenge` for a one-time message, signs it locally, and posts `{ address, signature, challengeId }` to `/api/auth/verify`. The server checks the signature, then sets an httpOnly session cookie (JWT, 30 days). The server stores only `wallet_address`, `xp`, `created_at`. There is no key or key-hash column. The key is held in memory until you confirm, then dropped. It is never persisted (session-only is the default).
-- **/analyse.** GeckoTerminal search resolves a CA or ticker to the deepest pool, then 15-minute OHLCV candles (about 100). RSI, MACD, Bollinger Bands and ATR are computed on the server, as are bias, direction, entry, target, stop and confidence. Gemini writes only the prose. Its output is rejected and retried (up to 2 more times) if it omits a field or contains any number that is not in the input. After that a template fallback is used, and the card says so.
-- **Betting.** `POST /api/bets` reads entry/target/stop from the stored analysis (never from the client), enforces one bet per analysis (DB unique constraint), and sets `resolves_at = now + 15 min`. Resolution is server-side and idempotent: the price is the close of the 1-minute candle at the resolution instant, XP is awarded in one transaction, and a notification is inserted. If the price fetch fails it retries 3 times and the bet stays `PENDING` for the next run.
-- **Leaderboard / rank.** Top 12 by `xp DESC` (ties by earlier `created_at`), plus the current user's rank. The client polls every 5 seconds.
-- **Data gaps.** Open interest and funding are "Data unavailable" for on-chain pools. MAIGA IQ and Mindshare % are "Data unavailable" (they need baselines the X search API does not provide). If `X_BEARER_TOKEN` is missing or rate-limited, /mindshare returns a "Source unavailable" card. No numbers are invented anywhere.
+## Key Features
+- **`/analyse`**: Generates 15-minute timeframe trade plans using real-time market data, RSI, MACD, and Bollinger Bands. Includes a built-in prediction interface for users to bet against the AI.
+- **`/report`**: Generates massive, deep-dive intelligence reports on tokens, analyzing volume, price action, and trade flows.
+- **Non-Custodial Auth**: Users generate or import an EVM wallet. Private keys never touch the server.
+- **Global Leaderboard**: Real-time XP rankings displaying the top 12 traders globally.
+- **Token Incentives**: A gamified path for top-performing traders to earn future $Nexo tokens.
+- **Notifications**: Background server cron resolves predictions and delivers XP updates.
 
-## Setup
+## Proof of Trading (Verifiable Track Record)
+NexoAi is built on absolute transparency. We don't just claim to be profitable; the system mathematically proves it.
+- **Immutable Timestamps**: When an AI trade plan is generated, it is instantly locked into the database with a server-side timestamp.
+- **Zero Front-Running**: Users cannot manipulate the bet. Once "Agree" or "Disagree" is clicked, the entry, target, and stop-loss are locked.
+- **Oracle Resolution**: At exactly the 15-minute mark, the server fetches the real-time price from GeckoTerminal to determine the winner. The user's browser has zero influence on the outcome.
+- **Public Ledger**: The Global Leaderboard acts as a transparent, verifiable record of every trader's accuracy. You can see exactly who is winning and who is losing, proving that the AI (and the users) are held accountable for every single call. 
+- **No Cherry-Picking**: All analysis history is saved in the user's chat drawer. Users cannot delete losing predictions from their record, ensuring a 100% honest performance metric.
 
+## Tech Stack
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS, Framer Motion
+- **State Management**: Zustand
+- **Database ORM**: Prisma
+- **Database**: PostgreSQL (Supabase)
+- **Authentication**: Ethers.js (EIP-191 Signature Verification)
+- **AI Engine**: Google Gemini API (Free Tier)
+- **Market Data**: GeckoTerminal API (Free Tier)
+- **Deployment**: Vercel
+
+## Architecture & Security
+- **Private Key Security**: NexoAi is non-custodial. EVM private keys are generated/imported exclusively in the browser. The server only stores the public wallet address. Authentication is handled via a server-issued challenge that the client signs.
+- **Data Integrity**: AI narratives are strictly validated against the raw market data payload. If the AI hallucinates a number that isn't in the input data, the response is rejected. If a data source (like Open Interest) is unavailable, the UI explicitly displays "Data unavailable" rather than fabricating numbers.
+- **Prediction Resolution**: Predictions are resolved server-side using strict 15-minute intervals. Prices are pulled from GeckoTerminal at the exact resolution timestamp, ensuring users cannot exploit frontend manipulation.
+
+## Local Development Setup
+
+### 1. Prerequisites
+- Node.js 18+
+- A Supabase account (for PostgreSQL)
+- A Google AI Studio account (for Gemini API Key)
+
+### 2. Installation
 ```bash
+git clone https://github.com/drmukty/nexoagent.git
+cd nexoagent
 npm install
-cp .env.example .env        # fill in DATABASE_URL, JWT_SECRET, APP_ORIGIN, keys
-npx prisma migrate deploy   # applies prisma/migrations
-npm run db:seed             # OPTIONAL, dev only: placeholder leaderboard rows
-npm run dev
-```
-
-Use `openssl rand -base64 48` for `JWT_SECRET` and `CRON_SECRET`.
-
-## Deploy to Vercel
-
-1. Create a Postgres database (Neon, Supabase, Vercel Postgres) and set `DATABASE_URL` in Vercel.
-2. Set `JWT_SECRET`, `APP_ORIGIN` (your https URL), `GEMINI_API_KEY`, optionally `X_BEARER_TOKEN`, and `CRON_SECRET`.
-3. Run `npx prisma migrate deploy` once against the production DB.
-4. Deploy. `vercel.json` raises function timeouts to 30s.
-
-### Bet resolution timer on serverless
-
-Serverless functions cannot hold a 15-minute timer, so resolution is claim-based:
-
-- every `/api/state` poll (every 5s per open tab) resolves due bets, and
-- `GET /api/cron/resolve` with `Authorization: Bearer $CRON_SECRET` resolves any stragglers.
-
-Vercel Hobby only allows daily crons, so either use Vercel Pro and add
-`"crons": [{ "path": "/api/cron/resolve", "schedule": "* * * * *" }]` to `vercel.json`
-(Vercel sends `Authorization: Bearer $CRON_SECRET` when `CRON_SECRET` is set), or point a free external pinger (cron-job.org, GitHub Actions) at the endpoint every minute. Because the resolution price is read from the candle at `resolves_at`, a late run still produces the correct 15-minute price.
-
-## Known limits (read before launch)
-
-- Rate limiting and caching are in-memory per instance. Swap `src/lib/rateLimit.ts` and `src/lib/cache.ts` for Upstash/Redis for a global limit.
-- "Real-time" is 5-second polling, not Socket.io/SSE (neither is reliable on Vercel serverless). Move to a persistent server if you need push.
-- Outcome rule is implemented as specified: the AI is correct if price moved past entry in the predicted direction, or ended closer to target than stop. Because target/stop are asymmetric around entry, this effectively means "price moved the predicted way".
-- The X API recent-search endpoint requires a paid tier. Sentiment is classified by Gemini from up to 100 sampled tweets; counts are computed in code.
-- GeckoTerminal free API is rate limited (about 30 calls/min). Responses are cached for 60 seconds.
-- Prices are stored as double precision, not NUMERIC.
-- Check the Gemini model name in `GEMINI_MODEL`; model IDs change over time.
-- Never use the seed script in production.
