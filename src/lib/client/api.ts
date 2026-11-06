@@ -11,7 +11,7 @@ export async function api<T>(url: string, opts: { method?: string; body?: unknow
       method: opts.method ?? (opts.body ? 'POST' : 'GET'),
       headers: opts.body ? { 'content-type': 'application/json' } : undefined,
       body: opts.body ? JSON.stringify(opts.body) : undefined,
-      credentials: 'same-origin',
+      credentials: 'include', // Ensures cookies are sent on every request
       cache: 'no-store',
     });
   } catch {
