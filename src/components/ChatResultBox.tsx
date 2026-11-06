@@ -15,7 +15,7 @@ function retryFor(r: ErrorResult, run: (c: CommandName, q: string) => Promise<vo
 }
 
 export function ChatResultBox() {
-  const { messages, run, setView, setMessages } = useApp();
+  const { messages, run, setView } = useApp();
   const [showHistory, setShowHistory] = useState(false);
   const end = useRef<HTMLDivElement>(null);
 
@@ -52,8 +52,6 @@ export function ChatResultBox() {
                   <span className="truncate">{search}</span>
                   <button 
                     onClick={() => {
-                      // Simple clear entire history for now
-                      setMessages([]); 
                       setShowHistory(false);
                     }}
                     className="text-gray-500 hover:text-nexo-red opacity-0 group-hover:opacity-100 transition-opacity"
@@ -67,17 +65,14 @@ export function ChatResultBox() {
         </div>
       )}
 
-      <div className="mx-auto flex max-w-3xl flex-col gap-4">
+      <div className="mx-auto flex max-w-3xl flex-col gap-4 pb-10">
         {/* Top action bar */}
         <div className="flex items-center gap-2 mb-2">
           <button onClick={() => setShowHistory(true)} className="tap flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-400 hover:text-white">
             <History className="h-3.5 w-3.5" /> Recent
           </button>
           <button 
-            onClick={() => {
-              setView('home');
-              setMessages([]);
-            }} 
+            onClick={() => setView('home')}
             className="tap flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-400 hover:text-white"
           >
             <Plus className="h-3.5 w-3.5" /> New Chat
