@@ -88,9 +88,9 @@ export function WelcomeScreen() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
               <Zap className="h-6 w-6 text-green-500" />
             </div>
-            <h3 className="mb-3 text-2xl font-bold text-white">Our Execution Layer</h3>
+            <h3 className="mb-3 text-2xl font-bold text-white">EXECUTION LAYER</h3>
             <p className="text-sm leading-relaxed text-gray-400">
-              NexoAi isn't just another signal bot. We gamified the trading experience. By allowing users to bet against the AI, we create a unique data edge—a verifiable leaderboard that proves who is actually profitable.
+              NexoAi We gamified the trading experience. By allowing users to bet against the AI, we create a unique data edge a verifiable leaderboard that proves who is actually profitable.
             </p>
           </div>
         </div>
