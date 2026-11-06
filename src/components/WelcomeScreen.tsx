@@ -6,7 +6,7 @@ import { CreateWalletModal } from './CreateWalletModal';
 import { ImportWalletModal } from './ImportWalletModal';
 import { SearchBox } from './SearchBox';
 import { useApp } from '@/store/app';
-import { AlertCircle, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 
 export function WelcomeScreen() {
   const { me } = useApp();
@@ -81,33 +81,17 @@ export function WelcomeScreen() {
         </div>
 
         {/* ========================================== */}
-        {/* THE PROFESSIONAL TWO-BOX LAYOUT */}
+        {/* THE SINGLE EXECUTION LAYER BOX */}
         {/* ========================================== */}
-        <div className="w-full mt-24">
-          <div className="grid w-full grid-cols-1 gap-6 text-left md:grid-cols-2">
-            
-            {/* BOX 1: PROBLEM & DEMAND */}
-            <div className="rounded-2xl border border-white/10 bg-[#0F1116] p-8 shadow-2xl">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10">
-                <AlertCircle className="h-5 w-5 text-red-500" />
-              </div>
-              <h3 className="mb-2 text-xl font-bold text-white">The Problem</h3>
-              <p className="text-sm leading-relaxed text-gray-400">
-                Retail traders lose capital blindly following unverified AI signals. The target user demands a transparent, verifiable way to test AI-generated alpha before risking their hard-earned funds.
-              </p>
+        <div className="w-full mt-24 max-w-2xl mx-auto">
+          <div className="rounded-2xl border border-white/10 bg-[#0F1116] p-8 shadow-2xl text-center flex flex-col items-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
+              <Zap className="h-6 w-6 text-green-500" />
             </div>
-
-            {/* BOX 2: DIFFERENTIATION & EXECUTION */}
-            <div className="rounded-2xl border border-white/10 bg-[#0F1116] p-8 shadow-2xl">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
-                <Zap className="h-5 w-5 text-green-500" />
-              </div>
-              <h3 className="mb-2 text-xl font-bold text-white">Our Execution Layer</h3>
-              <p className="text-sm leading-relaxed text-gray-400">
-                We gamified the trading experience. By allowing users to bet against the AI, we create a unique data edge—a verifiable leaderboard that proves who is actually profitable.
-              </p>
-            </div>
-
+            <h3 className="mb-3 text-2xl font-bold text-white">Our Execution Layer</h3>
+            <p className="text-sm leading-relaxed text-gray-400">
+              NexoAi isn't just another signal bot. We gamified the trading experience. By allowing users to bet against the AI, we create a unique data edge—a verifiable leaderboard that proves who is actually profitable.
+            </p>
           </div>
         </div>
 
