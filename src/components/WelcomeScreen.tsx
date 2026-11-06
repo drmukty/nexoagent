@@ -47,7 +47,6 @@ export function WelcomeScreen() {
             </ul>
           </div>
 
-          {/* Centered Search Box inside the Home Dashboard */}
           <div className="mt-10 w-full max-w-2xl">
             <SearchBox />
           </div>
@@ -57,27 +56,73 @@ export function WelcomeScreen() {
   }
 
   // ==========================================
-  // PRE-LOGIN VIEW
+  // PRE-LOGIN VIEW (Landing Page)
   // ==========================================
   return (
-    <div className="relative flex min-h-full items-center justify-center overflow-hidden p-6">
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
+    <div className="relative flex min-h-full flex-col items-center justify-center overflow-hidden p-6 py-12">
+      
+      {/* 1. Subtle Trading Grid Background */}
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:32px_32px]" aria-hidden>
+        {/* 2. Animated Glowing Orbs */}
         <div className="absolute -left-32 top-0 h-[28rem] w-[28rem] animate-drift rounded-full bg-nexo-blue/20 blur-3xl" />
-        <div className="absolute -right-24 bottom-0 h-[26rem] w-[26rem] animate-drift rounded-full bg-nexo-purple/20 blur-3xl [animation-delay:-9s]" />
+        <div className="absolute -right-24 bottom-0 h-[26rem] w-[26rem] animate-drift rounded-full bg-purple-500/20 blur-3xl [animation-delay:-9s]" />
       </div>
       
-      <div className="relative z-10 flex w-full max-w-md flex-col items-center text-center">
-        <Logo size="xl" />
-        <p className="mt-4 max-w-sm text-balance text-gray-400">
-          Short-term trade signals, social intelligence and full token reports. Test your read against the AI and climb the board.
-        </p>
+      <div className="relative z-10 flex w-full max-w-2xl flex-col items-center text-center">
         
-        <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
-          <button className="btn-primary flex-1" onClick={() => setModal('create')}>Create wallet</button>
-          <button className="btn-ghost flex-1" onClick={() => setModal('import')}>Import wallet</button>
+        {/* 3. Pulsing Radar Logo */}
+        <div className="relative flex items-center justify-center">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-nexo-blue opacity-40"></span>
+          <span className="animate-pulse absolute inline-flex h-24 w-24 rounded-full bg-nexo-blue/20 blur-md"></span>
+          <div className="relative z-10">
+            <Logo size="xl" />
+          </div>
         </div>
         
-        <p className="mt-6 text-xs text-gray-600">Not financial advice. AI can make mistakes.</p>
+        {/* Hero Text */}
+        <h1 className="mt-8 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+          The AI makes the call. <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-nexo-blue to-green-400">
+            You make the bet.
+          </span>
+        </h1>
+        
+        <p className="mt-4 max-w-lg text-balance text-gray-400">
+          NexoAi is an AI agent for DeFi and crypto signals. <br className="hidden sm:block" />
+          We let you test your read against the AI in real-time.
+        </p>
+
+        {/* 4. Two Feature Cards */}
+        <div className="mt-10 grid w-full max-w-lg grid-cols-1 gap-4 text-left sm:grid-cols-2">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+            <h3 className="font-display font-semibold text-nexo-blue flex items-center gap-2">
+              <span>◆</span> AI Signals
+            </h3>
+            <p className="mt-2 text-sm text-gray-400">
+              Get precise 15-minute timeframe signals. Real-time data on OI, funding rates, and trend detection.
+            </p>
+          </div>
+          
+          <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+            <h3 className="font-display font-semibold text-green-400 flex items-center gap-2">
+              <span>◆</span> Bet Against AI
+            </h3>
+            <p className="mt-2 text-sm text-gray-400">
+              Read the analysis? Hit AGREE or DISAGREE. If the price moves your way in 15 minutes, you win XP.
+            </p>
+          </div>
+        </div>
+
+        {/* Call to Action Buttons */}
+        <div className="mt-10 flex w-full max-w-sm flex-col gap-3 sm:flex-row">
+          <button className="btn-primary flex-1 py-3 text-base shadow-[0_0_20px_rgba(59,130,246,0.3)]" onClick={() => setModal('create')}>
+            Create Wallet
+          </button>
+          <button className="btn-ghost flex-1 py-3 text-base" onClick={() => setModal('import')}>
+            Import Wallet
+          </button>
+        </div>
+        
       </div>
       
       <AnimatePresence>
