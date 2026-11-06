@@ -124,11 +124,17 @@ export const useApp = create<State>((set, get) => ({
         unread: d.unread,
         bets: Object.fromEntries(d.bets.map((b) => [b.analysisId, b])),
         messages: first ? loadChat(d.me.address) : prev.messages,
-        // Never change the view on background refresh.
       });
     } catch (e) {
-      if (e instanceof ApiError && e.status === 401) set({ booted: true, me: null, messages: [], view: 'home' });
-      else set({ booted: true });
+      // 🚨 FIX: Only log out if we were NOT logged in, or if it's a hard 401.
+      // If we are already logged in (we have a `me`), ignore the 401 and keep the session alive.
+      if (e instanceof ApiError && e.status === 401 && !get().me) {
+        set({ booted: true, me: null, messages: [], view: 'home' });
+      } else {
+        set({ booted: true });
+        // Silently fail background refreshes so the user isn't interrupted
+        console.warn("Background refresh failed, keeping session alive:", e);
+      }
     }
   },
 
