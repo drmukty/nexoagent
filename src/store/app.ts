@@ -43,7 +43,7 @@ const chatKey = (a: string) => `nexoai:chat:${a}`;
 
 function persist(address: string | undefined, messages: Msg[]) {
   if (!address) return;
-  try { localStorage.setItem(chatKey(address), JSON.stringify(messages.filter((m) => !m.pending).slice(-60))); } catch { /* storage may be full or blocked */ }
+  try { localStorage.setItem(chatKey(address), JSON.stringify(messages.filter((m) => !m.pending).slice(-60))); } catch { /* ignore */ }
 }
 function loadChat(address: string): Msg[] {
   try { return JSON.parse(localStorage.getItem(chatKey(address)) ?? '[]'); } catch { return []; }
@@ -86,7 +86,8 @@ export const useApp = create<State>((set, get) => ({
         unread: d.unread,
         bets: Object.fromEntries(d.bets.map((b) => [b.analysisId, b])),
         messages: first ? loadChat(d.me.address) : prev.messages,
-        view: (first ? loadChat(d.me.address).length : prev.messages.length) > 0 ? 'chat' : 'home',
+        // Always set to 'home' on refresh to prevent auto-jumping to chat
+        view: 'home',
       });
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) set({ booted: true, me: null, messages: [], view: 'home' });
