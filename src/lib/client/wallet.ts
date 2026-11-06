@@ -1,6 +1,5 @@
 import { Wallet } from 'ethers';
 import { api } from './api';
-import { useApp } from '@/store/app';
 
 /** The key exists only in browser memory. It is never sent anywhere, stored, or logged. */
 export type Signer = { address: string; signMessage(message: string): Promise<string> };
@@ -26,7 +25,4 @@ export async function signIn(signer: Signer): Promise<void> {
   const { challengeId, message } = await api<{ challengeId: string; message: string }>('/api/auth/challenge', { method: 'POST', body: {} });
   const signature = await signer.signMessage(message);
   await api('/api/auth/verify', { method: 'POST', body: { address: signer.address, signature, challengeId } });
-  
-  // Force Zustand to instantly fetch the new state after sign-in so the app updates immediately
-  await useApp.getState().refresh(); 
 }
