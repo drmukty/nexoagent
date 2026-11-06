@@ -22,6 +22,9 @@ export async function runReport(query: string): Promise<ReportResult> {
     sentiment = `${up ? 'Positive' : down ? 'Negative' : 'Neutral'} (price action and trade flow, not social)`;
   }
 
+  // Extract the MACD line correctly from the object
+  const macdValue = ind?.macd?.line ? Number(ind.macd.line.toFixed(3)) : null;
+
   // Pass more data to the AI for a denser report
   const payload = { 
     token: pool.baseSymbol, 
@@ -31,7 +34,7 @@ export async function runReport(query: string): Promise<ReportResult> {
     sells_24h: sells, 
     volume_24h: vol,
     rsi: ind ? Number(ind.rsi.toFixed(1)) : null,
-    macd: ind ? Number(ind.macd.toFixed(3)) : null
+    macd: macdValue
   };
 
   if (h24 === null && !ind) throw new DataError('Not enough market data is available for this token yet.', false);
