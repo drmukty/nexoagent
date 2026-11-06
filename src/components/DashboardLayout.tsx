@@ -26,10 +26,10 @@ export function DashboardLayout() {
           <WelcomeScreen />
         ) : (
           /* Otherwise, show the Chat */
-          <>
+          <div className="flex h-full flex-col">
             <ChatResultBox />
             <SearchBox />
-          </>
+          </div>
         )}
       </main>
 
