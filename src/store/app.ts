@@ -24,7 +24,10 @@ interface State {
   bets: Record<string, BetDTO>;
   messages: Msg[];
   panel: PanelName;
+  view: 'home' | 'chat';
   toasts: Toast[];
+  
+  setView: (v: 'home' | 'chat') => void;
   setPanel: (p: PanelName) => void;
   toast: (text: string, tone?: Toast['tone']) => void;
   dismissToast: (id: string) => void;
@@ -54,9 +57,12 @@ export const useApp = create<State>((set, get) => ({
   bets: {},
   messages: [],
   panel: null,
+  view: 'home',
   toasts: [],
 
+  setView: (view) => set({ view }),
   setPanel: (panel) => set({ panel }),
+  
   toast: (text, tone = 'info') => {
     const id = uid();
     set((s) => ({ toasts: [...s.toasts, { id, text, tone }] }));
@@ -70,7 +76,9 @@ export const useApp = create<State>((set, get) => ({
       const prev = get();
       const known = new Set(prev.notifications.map((n) => n.id));
       d.notifications.filter((n) => !n.isRead && !known.has(n.id) && prev.me).forEach((n) => get().toast(`Bet resolved: ${n.message}`, 'success'));
+      
       const first = !prev.me;
+      
       set({
         booted: true,
         me: d.me,
@@ -78,9 +86,10 @@ export const useApp = create<State>((set, get) => ({
         unread: d.unread,
         bets: Object.fromEntries(d.bets.map((b) => [b.analysisId, b])),
         messages: first ? loadChat(d.me.address) : prev.messages,
+        view: (first ? loadChat(d.me.address).length : prev.messages.length) > 0 ? 'chat' : 'home',
       });
     } catch (e) {
-      if (e instanceof ApiError && e.status === 401) set({ booted: true, me: null, messages: [] });
+      if (e instanceof ApiError && e.status === 401) set({ booted: true, me: null, messages: [], view: 'home' });
       else set({ booted: true });
     }
   },
@@ -88,13 +97,16 @@ export const useApp = create<State>((set, get) => ({
   reset: () => {
     const addr = get().me?.address;
     try { if (addr) localStorage.removeItem(chatKey(addr)); } catch { /* ignore */ }
-    set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], panel: null });
+    set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], panel: null, view: 'home' });
   },
 
   run: async (command, query) => {
     const userMsg: Msg = { id: uid(), role: 'user', text: `/${command} ${query}`, ts: Date.now() };
     const pending: Msg = { id: uid(), role: 'result', pending: true, command, query, ts: Date.now() };
-    set((s) => ({ messages: [...s.messages, userMsg, pending] }));
+    
+    // Switch to chat view immediately upon running a command
+    set((s) => ({ messages: [...s.messages, userMsg, pending], view: 'chat' }));
+    
     let result: Result;
     try {
       result = await api<Result>('/api/command', { body: { command, query } });
