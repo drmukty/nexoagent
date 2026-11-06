@@ -6,7 +6,7 @@ import { CreateWalletModal } from './CreateWalletModal';
 import { ImportWalletModal } from './ImportWalletModal';
 import { SearchBox } from './SearchBox';
 import { useApp } from '@/store/app';
-import { Zap } from 'lucide-react';
+import { Zap, ShieldCheck, TrendingUp, AlertTriangle } from 'lucide-react';
 
 export function WelcomeScreen() {
   const { me } = useApp();
@@ -52,7 +52,7 @@ export function WelcomeScreen() {
         <div className="absolute -right-24 bottom-0 h-[26rem] w-[26rem] animate-drift rounded-full bg-purple-500/20 blur-3xl [animation-delay:-9s]" />
       </div>
       
-      <div className="relative z-10 flex w-full max-w-4xl flex-col items-center text-center pb-20 mt-8">
+      <div className="relative z-10 flex w-full max-w-5xl flex-col items-center text-center pb-20 mt-8">
         
         {/* Pulsing Radar Logo */}
         <div className="relative flex items-center justify-center">
@@ -66,8 +66,8 @@ export function WelcomeScreen() {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-nexo-blue to-green-400">You make the bet.</span>
         </h1>
         
-        <p className="mt-6 max-w-xl text-balance text-lg text-gray-400">
-          NexoAi is a decentralized AI agent for DeFi. We don't just give you alpha—we let you test your read against the machine in real-time.
+        <p className="mt-6 max-w-2xl text-balance text-lg text-gray-400">
+          NexoAi is an AI-powered DeFi trading arena. It generates real-time crypto signals and allows users to bet XP on the AI's accuracy. Top XP holders earn future incentives in the <strong className="text-white">$Nexo token</strong>.
         </p>
 
         {/* Wallet Buttons */}
@@ -81,18 +81,46 @@ export function WelcomeScreen() {
         </div>
 
         {/* ========================================== */}
-        {/* THE SINGLE EXECUTION LAYER BOX */}
+        {/* THE PITCH DECK SECTIONS (For Fundable AI) */}
         {/* ========================================== */}
-        <div className="w-full mt-24 max-w-2xl mx-auto">
-          <div className="rounded-2xl border border-white/10 bg-[#0F1116] p-8 shadow-2xl text-center flex flex-col items-center">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
-              <Zap className="h-6 w-6 text-green-500" />
+        <div className="w-full mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+          
+          {/* Box 1: The Problem */}
+          <div className="rounded-2xl border border-white/10 bg-[#0F1116] p-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-red-500/50"></div>
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
             </div>
-            <h3 className="mb-3 text-2xl font-bold text-white">EXECUTION LAYER</h3>
+            <h3 className="mb-2 text-lg font-bold text-white">The Core Problem</h3>
             <p className="text-sm leading-relaxed text-gray-400">
-              NexoAi We gamified the trading experience. By allowing users to bet against the AI, we create a unique data edge a verifiable leaderboard that proves who is actually profitable.
+              Retail traders blindly trust unverified AI black boxes and paid gurus with zero accountability. When a call fails, the trader loses real capital while the platform keeps the fees.
             </p>
           </div>
+
+          {/* Box 2: Execution Layer */}
+          <div className="rounded-2xl border border-white/10 bg-[#0F1116] p-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-nexo-blue/50"></div>
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-nexo-blue/10">
+              <Zap className="h-5 w-5 text-nexo-blue" />
+            </div>
+            <h3 className="mb-2 text-lg font-bold text-white">The Execution Layer</h3>
+            <p className="text-sm leading-relaxed text-gray-400">
+              We turn AI analysis into a competitive arena. The AI generates a 15-min trade plan. You hit <strong className="text-white">Agree</strong> or <strong className="text-white">Disagree</strong>. If you're right, you earn 10 XP.
+            </p>
+          </div>
+
+          {/* Box 3: Proof of Trading */}
+          <div className="rounded-2xl border border-white/10 bg-[#0F1116] p-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-green-500/50"></div>
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
+              <ShieldCheck className="h-5 w-5 text-green-500" />
+            </div>
+            <h3 className="mb-2 text-lg font-bold text-white">Proof of Trading</h3>
+            <p className="text-sm leading-relaxed text-gray-400">
+              Immutable timestamps and server-side Oracle resolution. We don't just claim to be profitable; the global leaderboard mathematically proves it.
+            </p>
+          </div>
+
         </div>
 
       </div>
