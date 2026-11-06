@@ -1,13 +1,68 @@
+'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
-import { ArrowLeft, ShieldCheck, Zap, AlertTriangle, TrendingUp } from 'lucide-react';
-
-export const metadata = {
-  title: 'About NexoAi | The AI Trading Arena',
-  description: 'Learn how NexoAi turns AI crypto analysis into a competitive prediction market. Verifiable proof of trading, non-custodial auth, and $Nexo token incentives.',
-};
+import { ArrowLeft, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AboutPage() {
+  // State to track which section is open (allows only one open at a time)
+  const [openSection, setOpenSection] = useState<number | null>(0);
+
+  const toggleSection = (index: number) => {
+    setOpenSection(openSection === index ? null : index);
+  };
+
+  const sections = [
+    {
+      title: "Why we built NexoAi",
+      content: (
+        <p className="text-gray-300 leading-relaxed">
+          Let’s be honest: the crypto signal space is a mess. Retail traders are constantly sold "alpha" by anonymous gurus or automated bots that have zero accountability. When a trade goes south, the trader loses their hard-earned money, but the guru just keeps their subscription fee. 
+          <br /><br />
+          We built NexoAi because we were tired of the blind trust. We wanted to create a space where the AI has to put its money where its mouth is. If the AI makes a call, you should be able to test it, verify it, and prove whether it's actually profitable.
+        </p>
+      )
+    },
+    {
+      title: "How the Execution Layer works",
+      content: (
+        <p className="text-gray-300 leading-relaxed">
+          NexoAi isn't just a chatbot that spits out signals. We gamified the entire process. 
+          <br /><br />
+          When you ask the AI for a 15-minute trade plan, you are given two options: <strong className="text-white">Agree</strong> or <strong className="text-white">Disagree</strong>. 
+          If you agree and the target is hit within 15 minutes, you earn <strong className="text-nexo-green">10 XP</strong>. If you disagree and the AI is wrong, you also earn <strong className="text-nexo-green">10 XP</strong>. But if you lose, you only get <strong className="text-gray-400">1 XP</strong>. 
+          <br /><br />
+          This forces both the user and the AI to be accountable. There is no cherry-picking. Every call is locked in with an immutable timestamp.
+        </p>
+      )
+    },
+    {
+      title: "The $Nexo Token Incentive",
+      content: (
+        <p className="text-gray-300 leading-relaxed">
+          We believe that real trading talent should be rewarded, not just the platform owners. 
+          <br /><br />
+          The Global Leaderboard isn't just for bragging rights. It is the core of our community ecosystem. The Top 12 traders on the leaderboard will receive future incentives and airdrops in the <strong className="text-white">$Nexo token</strong>. 
+          <br /><br />
+          We are shifting the power dynamic. Instead of paying monthly fees to a faceless signal group, you are proving your edge, climbing the ranks, and getting rewarded by the protocol itself.
+        </p>
+      )
+    },
+    {
+      title: "Non-Custodial & Verifiable",
+      content: (
+        <p className="text-gray-300 leading-relaxed">
+          We take security seriously. NexoAi is 100% non-custodial. 
+          <br /><br />
+          When you use our app, your EVM private key is generated or imported directly in your browser and <strong className="text-white">never touches our servers</strong>. We only store your public wallet address so you can access your dashboard and track your XP. 
+          <br /><br />
+          To ensure fairness, all bet resolutions are handled server-side using real-time price data. You cannot manipulate the frontend to win. The leaderboard is a mathematically verifiable proof of trading accuracy.
+        </p>
+      )
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-[#0A0B0D] text-white">
       {/* Header */}
@@ -26,93 +81,53 @@ export default function AboutPage() {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-4xl px-6 py-16">
+      <main className="mx-auto max-w-3xl px-6 py-16">
         
-        <div className="mb-16 text-center">
+        <div className="mb-12 text-center">
           <h1 className="mb-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
             About NexoAi
           </h1>
-          <p className="mx-auto max-w-2xl text-lg text-gray-400">
-            NexoAi is a gamified AI trading arena. We generate real-time crypto signals and allow users to bet XP on the AI's accuracy. Top XP holders earn future incentives in the $Nexo token.
+          <p className="mx-auto max-w-xl text-lg text-gray-400">
+            The first AI trading arena where the AI makes the call, and you make the bet.
           </p>
         </div>
 
-        <div className="space-y-12">
-          {/* Section 1 */}
-          <section className="rounded-2xl border border-red-500/20 bg-[#0F1116] p-8 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500"></div>
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10">
-              <AlertTriangle className="h-6 w-6 text-red-500" />
+        {/* Accordion Container */}
+        <div className="space-y-4">
+          {sections.map((section, index) => (
+            <div 
+              key={index} 
+              className="overflow-hidden rounded-2xl border border-white/10 bg-[#0F1116] shadow-xl transition-colors hover:border-white/20"
+            >
+              <button
+                onClick={() => toggleSection(index)}
+                className="flex w-full items-center justify-between px-6 py-5 text-left focus:outline-none"
+              >
+                <span className="text-xl font-bold text-white">{section.title}</span>
+                <motion.div
+                  animate={{ rotate: openSection === index ? 180 : 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                  <ChevronDown className="h-5 w-5 text-nexo-blue" />
+                </motion.div>
+              </button>
+              
+              <AnimatePresence initial={false}>
+                {openSection === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    <div className="border-t border-white/5 px-6 pb-6 pt-4 text-sm sm:text-base">
+                      {section.content}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <h2 className="mb-4 text-2xl font-bold text-white">The Core Problem</h2>
-            <p className="text-base leading-relaxed text-gray-400">
-              The crypto industry is flooded with unverified AI black boxes. Retail traders are forced to blindly trust automated algorithms or paid "gurus" who have zero accountability. When an algorithmic call fails, the trader loses real capital while the platform keeps their subscription fees. There is no proof of accuracy, and no skin in the game.
-            </p>
-          </section>
-
-          {/* Section 2 */}
-          <section className="rounded-2xl border border-white/10 bg-[#0F1116] p-8 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-nexo-blue to-green-400"></div>
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-nexo-blue/10">
-              <Zap className="h-6 w-6 text-nexo-blue" />
-            </div>
-            <h2 className="mb-4 text-2xl font-bold text-white">The Execution Layer</h2>
-            <p className="text-base leading-relaxed text-gray-400 mb-4">
-              NexoAi solves this by turning AI analysis into a competitive arena. We don't just give you alpha—we let you test your read against the machine in real-time.
-            </p>
-            <ul className="space-y-3 text-gray-300">
-              <li className="flex items-start gap-3">
-                <span className="mt-1 text-nexo-blue">◆</span>
-                <span>The AI generates a 15-minute trade plan (Entry, Target, Stop-Loss).</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 text-nexo-blue">◆</span>
-                <span>The user hits <strong>Agree</strong> or <strong>Disagree</strong>.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 text-nexo-blue">◆</span>
-                <span>If the prediction matches the market movement in 15 minutes, the user earns <strong>10 XP</strong>. If incorrect, <strong>1 XP</strong>.</span>
-              </li>
-            </ul>
-          </section>
-
-          {/* Section 3 */}
-          <section className="rounded-2xl border border-green-500/20 bg-[#0F1116] p-8 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-emerald-600"></div>
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
-              <ShieldCheck className="h-6 w-6 text-green-500" />
-            </div>
-            <h2 className="mb-4 text-2xl font-bold text-white">Proof of Trading</h2>
-            <p className="text-base leading-relaxed text-gray-400 mb-4">
-              NexoAi is built on absolute transparency. We don't just claim to be profitable; the system mathematically proves it.
-            </p>
-            <ul className="space-y-3 text-sm text-gray-400">
-              <li className="flex items-start gap-3">
-                <span className="mt-1 text-green-500">◆</span>
-                <span><strong>Immutable Timestamps:</strong> Trade plans are locked into the database instantly.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 text-green-500">◆</span>
-                <span><strong>Zero Front-Running:</strong> Once a bet is placed, the entry, target, and stop-loss cannot be manipulated.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 text-green-500">◆</span>
-                <span><strong>Oracle Resolution:</strong> At exactly 15 minutes, the server fetches real-time data to resolve the bet. The browser has zero influence.</span>
-              </li>
-            </ul>
-          </section>
-
-          {/* Section 4 */}
-          <section className="rounded-2xl border border-purple-500/20 bg-[#0F1116] p-8 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-pink-500"></div>
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10">
-              <TrendingUp className="h-6 w-6 text-purple-500" />
-            </div>
-            <h2 className="mb-4 text-2xl font-bold text-white">$Nexo Token Incentives</h2>
-            <p className="text-base leading-relaxed text-gray-400">
-              The Global Leaderboard acts as a verifiable record of every trader's accuracy. It is not just a game—top-performing traders on the leaderboard earn future incentives and airdrops in the <strong>$Nexo token</strong>. We gamify trading accountability and reward the best players.
-            </p>
-          </section>
+          ))}
         </div>
 
         <div className="mt-16 text-center">
