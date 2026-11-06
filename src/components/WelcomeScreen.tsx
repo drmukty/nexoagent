@@ -6,6 +6,7 @@ import { CreateWalletModal } from './CreateWalletModal';
 import { ImportWalletModal } from './ImportWalletModal';
 import { SearchBox } from './SearchBox';
 import { useApp } from '@/store/app';
+import { AlertCircle, Zap } from 'lucide-react';
 
 export function WelcomeScreen() {
   const { me } = useApp();
@@ -51,10 +52,10 @@ export function WelcomeScreen() {
         <div className="absolute -right-24 bottom-0 h-[26rem] w-[26rem] animate-drift rounded-full bg-purple-500/20 blur-3xl [animation-delay:-9s]" />
       </div>
       
-      <div className="relative z-10 flex w-full max-w-5xl flex-col items-center text-center pb-20">
+      <div className="relative z-10 flex w-full max-w-4xl flex-col items-center text-center pb-20 mt-8">
         
         {/* Pulsing Radar Logo */}
-        <div className="relative flex items-center justify-center mt-8">
+        <div className="relative flex items-center justify-center">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-nexo-blue opacity-40"></span>
           <span className="animate-pulse absolute inline-flex h-24 w-24 rounded-full bg-nexo-blue/20 blur-md"></span>
           <div className="relative z-10"><Logo size="xl" /></div>
@@ -65,12 +66,12 @@ export function WelcomeScreen() {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-nexo-blue to-green-400">You make the bet.</span>
         </h1>
         
-        <p className="mt-6 max-w-2xl text-balance text-lg text-gray-400">
-          NexoAi is a decentralized AI agent for DeFi and crypto signals. We don't just give you alpha—we let you test your read against the machine in real-time.
+        <p className="mt-6 max-w-xl text-balance text-lg text-gray-400">
+          NexoAi is a decentralized AI agent for DeFi. We don't just give you alpha—we let you test your read against the machine in real-time.
         </p>
 
         {/* Wallet Buttons */}
-        <div className="mt-10 flex w-full max-w-md flex-col gap-3 sm:flex-row">
+        <div className="mt-10 flex w-full max-w-sm flex-col gap-3 sm:flex-row">
           <button className="btn-primary flex-1 py-4 text-base shadow-[0_0_20px_rgba(59,130,246,0.3)]" onClick={() => setModal('create')}>
             Create Wallet
           </button>
@@ -80,42 +81,30 @@ export function WelcomeScreen() {
         </div>
 
         {/* ========================================== */}
-        {/* THE TWO BIG SCORE-BOOSTING ABOUT BOXES */}
+        {/* THE PROFESSIONAL TWO-BOX LAYOUT */}
         {/* ========================================== */}
         <div className="w-full mt-24">
-          <h2 className="text-2xl font-bold text-white mb-8 border-b border-white/10 pb-4 inline-block">Why NexoAi Exists</h2>
-          
-          <div className="grid w-full grid-cols-1 gap-8 text-left md:grid-cols-2">
+          <div className="grid w-full grid-cols-1 gap-6 text-left md:grid-cols-2">
             
             {/* BOX 1: PROBLEM & DEMAND */}
-            <div className="relative overflow-hidden rounded-2xl border border-red-500/20 bg-black/40 p-8 backdrop-blur-md shadow-2xl">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500"></div>
-              <h3 className="mb-4 text-2xl font-bold text-white flex items-center gap-2">
-                <span className="text-red-500">◆</span> The Unaccountable Alpha Crisis
-              </h3>
-              
-              <p className="text-base leading-relaxed text-gray-300 mb-4">
-                <strong className="text-white text-lg">The Pain:</strong> The crypto signal industry is fundamentally broken. Retail traders blindly follow paid "gurus" and AI trading bots that have zero accountability. These platforms use black-box algorithms to shill tokens, and when the trade fails, the trader loses real capital while the platform keeps the subscription fees. There is no proof of accuracy, and no skin in the game.
-              </p>
-              
-              <p className="text-base leading-relaxed text-gray-300">
-                <strong className="text-white text-lg">The Target User:</strong> Retail DeFi traders who are tired of losing money to unverified signals. They are actively looking for a transparent, verifiable way to test AI-generated alpha before risking their hard-earned funds. They demand proof, not promises.
+            <div className="rounded-2xl border border-white/10 bg-[#0F1116] p-8 shadow-2xl">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10">
+                <AlertCircle className="h-5 w-5 text-red-500" />
+              </div>
+              <h3 className="mb-2 text-xl font-bold text-white">The Problem</h3>
+              <p className="text-sm leading-relaxed text-gray-400">
+                Retail traders lose capital blindly following unverified AI signals. The target user demands a transparent, verifiable way to test AI-generated alpha before risking their hard-earned funds.
               </p>
             </div>
 
             {/* BOX 2: DIFFERENTIATION & EXECUTION */}
-            <div className="relative overflow-hidden rounded-2xl border border-nexo-blue/30 bg-black/40 p-8 backdrop-blur-md shadow-2xl">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-nexo-blue to-green-400"></div>
-              <h3 className="mb-4 text-2xl font-bold text-white flex items-center gap-2">
-                <span className="text-nexo-blue">◆</span> The NexoAi Edge: Gamified Execution
-              </h3>
-              
-              <p className="text-base leading-relaxed text-gray-300 mb-4">
-                <strong className="text-white text-lg">Unique Execution Layer:</strong> NexoAi isn't just another signal bot. We built a competitive prediction market directly into the chat. When our AI (powered by Gemini 2.0 and real-time GeckoTerminal data) generates a 15-minute trade plan, the user can <strong className="text-white">Bet Against the AI</strong>.
-              </p>
-              
-              <p className="text-base leading-relaxed text-gray-300">
-                <strong className="text-white text-lg">The Data Edge:</strong> By forcing users to hit "AGREE" or "DISAGREE" and betting XP on the outcome, we create an on-chain leaderboard of verifiable alpha. We don't just sell signals; we gamify trading accountability. If the AI is wrong, the user wins XP. This aligns incentives and creates the first truly competitive AI trading arena.
+            <div className="rounded-2xl border border-white/10 bg-[#0F1116] p-8 shadow-2xl">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
+                <Zap className="h-5 w-5 text-green-500" />
+              </div>
+              <h3 className="mb-2 text-xl font-bold text-white">Our Execution Layer</h3>
+              <p className="text-sm leading-relaxed text-gray-400">
+                We gamified the trading experience. By allowing users to bet against the AI, we create a unique data edge—a verifiable leaderboard that proves who is actually profitable.
               </p>
             </div>
 
