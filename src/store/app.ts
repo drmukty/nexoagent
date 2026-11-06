@@ -16,6 +16,13 @@ export interface Msg {
 export type PanelName = 'profile' | 'rank' | 'bell' | 'menu' | null;
 export interface Toast { id: string; text: string; tone: 'info' | 'error' | 'success' }
 
+export interface ChatHistoryItem {
+  id: string;
+  title: string;
+  messages: Msg[];
+  ts: number;
+}
+
 interface State {
   booted: boolean;
   me: MeDTO | null;
@@ -23,12 +30,16 @@ interface State {
   unread: number;
   bets: Record<string, BetDTO>;
   messages: Msg[];
+  chatHistory: ChatHistoryItem[];
   panel: PanelName;
   view: 'home' | 'chat';
   toasts: Toast[];
   
   setView: (v: 'home' | 'chat') => void;
   setPanel: (p: PanelName) => void;
+  startNewChat: () => void;
+  loadChatHistory: (id: string) => void;
+  deleteChatHistory: (id: string) => void;
   toast: (text: string, tone?: Toast['tone']) => void;
   dismissToast: (id: string) => void;
   refresh: () => Promise<void>;
@@ -56,12 +67,38 @@ export const useApp = create<State>((set, get) => ({
   unread: 0,
   bets: {},
   messages: [],
+  chatHistory: [],
   panel: null,
   view: 'home',
   toasts: [],
 
   setView: (view) => set({ view }),
   setPanel: (panel) => set({ panel }),
+  
+  startNewChat: () => {
+    const { messages } = get();
+    if (messages.length > 0) {
+      const title = messages.find(m => m.role === 'user')?.text || 'New Chat';
+      set(s => ({
+        chatHistory: [{ id: uid(), title, messages: [...messages], ts: Date.now() }, ...s.chatHistory],
+        messages: [],
+        view: 'home'
+      }));
+    } else {
+      set({ messages: [], view: 'home' });
+    }
+  },
+
+  loadChatHistory: (id) => {
+    const item = get().chatHistory.find(c => c.id === id);
+    if (item) {
+      set({ messages: item.messages, view: 'chat' });
+    }
+  },
+
+  deleteChatHistory: (id) => {
+    set(s => ({ chatHistory: s.chatHistory.filter(c => c.id !== id) }));
+  },
   
   toast: (text, tone = 'info') => {
     const id = uid();
@@ -87,7 +124,7 @@ export const useApp = create<State>((set, get) => ({
         unread: d.unread,
         bets: Object.fromEntries(d.bets.map((b) => [b.analysisId, b])),
         messages: first ? loadChat(d.me.address) : prev.messages,
-        // We DO NOT set `view` here. This prevents the app from auto-jumping.
+        // Never change the view on background refresh.
       });
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) set({ booted: true, me: null, messages: [], view: 'home' });
@@ -98,14 +135,13 @@ export const useApp = create<State>((set, get) => ({
   reset: () => {
     const addr = get().me?.address;
     try { if (addr) localStorage.removeItem(chatKey(addr)); } catch { /* ignore */ }
-    set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], panel: null, view: 'home' });
+    set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], chatHistory: [], panel: null, view: 'home' });
   },
 
   run: async (command, query) => {
     const userMsg: Msg = { id: uid(), role: 'user', text: `/${command} ${query}`, ts: Date.now() };
     const pending: Msg = { id: uid(), role: 'result', pending: true, command, query, ts: Date.now() };
     
-    // Switch to chat view ONLY when a user manually runs a command
     set((s) => ({ messages: [...s.messages, userMsg, pending], view: 'chat' }));
     
     let result: Result;
