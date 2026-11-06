@@ -74,6 +74,7 @@ export const useApp = create<State>((set, get) => ({
     try {
       const d = await api<{ me: MeDTO; notifications: NotificationDTO[]; unread: number; bets: BetDTO[] }>('/api/state');
       const prev = get();
+      
       const known = new Set(prev.notifications.map((n) => n.id));
       d.notifications.filter((n) => !n.isRead && !known.has(n.id) && prev.me).forEach((n) => get().toast(`Bet resolved: ${n.message}`, 'success'));
       
@@ -86,8 +87,9 @@ export const useApp = create<State>((set, get) => ({
         unread: d.unread,
         bets: Object.fromEntries(d.bets.map((b) => [b.analysisId, b])),
         messages: first ? loadChat(d.me.address) : prev.messages,
-        // Always set to 'home' on refresh to prevent auto-jumping to chat
-        view: 'home',
+        // FIXED BUG: Only go to 'home' on the very first login. 
+        // Otherwise, keep the user on whatever screen they are currently looking at.
+        view: first ? 'home' : prev.view,
       });
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) set({ booted: true, me: null, messages: [], view: 'home' });
