@@ -87,9 +87,7 @@ export const useApp = create<State>((set, get) => ({
         unread: d.unread,
         bets: Object.fromEntries(d.bets.map((b) => [b.analysisId, b])),
         messages: first ? loadChat(d.me.address) : prev.messages,
-        // FIXED BUG: Only go to 'home' on the very first login. 
-        // Otherwise, keep the user on whatever screen they are currently looking at.
-        view: first ? 'home' : prev.view,
+        // We DO NOT set `view` here. This prevents the app from auto-jumping.
       });
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) set({ booted: true, me: null, messages: [], view: 'home' });
@@ -107,7 +105,7 @@ export const useApp = create<State>((set, get) => ({
     const userMsg: Msg = { id: uid(), role: 'user', text: `/${command} ${query}`, ts: Date.now() };
     const pending: Msg = { id: uid(), role: 'result', pending: true, command, query, ts: Date.now() };
     
-    // Switch to chat view immediately upon running a command
+    // Switch to chat view ONLY when a user manually runs a command
     set((s) => ({ messages: [...s.messages, userMsg, pending], view: 'chat' }));
     
     let result: Result;
