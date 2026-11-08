@@ -1,6 +1,6 @@
 'use client';
 import { AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Info } from 'lucide-react';
 import { Logo } from './Logo';
@@ -14,29 +14,13 @@ export function WelcomeScreen() {
   const { me, messages } = useApp();
   const [modal, setModal] = useState<'create' | 'import' | null>(null);
 
-  // This fixes the auto-login bug. If the user logs out (me becomes null)
-  // but the screen doesn't immediately switch to the landing page, this forces a hard reload.
-  useEffect(() => {
-    if (!me && window.location.pathname === '/') {
-      setTimeout(() => {
-        if (!useApp.getState().me) {
-          window.location.reload();
-        }
-      }, 500);
-    }
-  }, [me]);
-
   // ==========================================
   // 1. LOGGED IN VIEW (Dashboard)
   // ==========================================
   if (me) {
     return (
       <div className="relative flex h-[calc(100vh-60px)] w-full flex-col justify-between overflow-hidden">
-        
-        {/* This renders the Big Logo, Welcome Text, and Recent Chats */}
         <ChatResultBox />
-        
-        {/* SearchBox docked at bottom */}
         <div className="w-full">
           <SearchBox />
         </div>
@@ -62,7 +46,6 @@ export function WelcomeScreen() {
           <span className="text-nexo-blue">AI signals & win bets.</span>
         </h1>
         
-        {/* Replaced the long paragraph with your requested text */}
         <p className="mt-4 max-w-md text-balance text-lg text-gray-400 font-medium">
           The AI agent for DeFi trading.
         </p>
@@ -72,7 +55,6 @@ export function WelcomeScreen() {
           <button className="btn-ghost flex-1" onClick={() => setModal('import')}>Import wallet</button>
         </div>
 
-        {/* About Link Box */}
         <div className="mt-10 w-full max-w-sm">
           <Link 
             href="/about" 
