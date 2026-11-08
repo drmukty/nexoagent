@@ -1,11 +1,17 @@
 'use client';
-import { Bell, Menu, Trophy, User } from 'lucide-react';
+import { Bell, Menu, Trophy, User, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from './Logo';
 import { useApp } from '@/store/app';
 
 export function TopBar() {
-  const { me, unread, setPanel } = useApp();
+  const { me, unread, setPanel, reset } = useApp();
+  
+  const handleLogout = () => {
+    reset();
+    window.location.href = '/'; // Force reload to clear state
+  };
+
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-nexo-bg/80 px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-md sm:px-5">
       
@@ -18,14 +24,23 @@ export function TopBar() {
         <span className="label">XP</span>
         <span className="font-display text-base font-semibold tabular-nums text-nexo-green">{me?.xp ?? 0}</span>
       </div>
-      <nav className="hidden items-center gap-1 md:flex" aria-label="Account">
+      
+      <nav className="hidden items-center gap-2 md:flex" aria-label="Account">
         <button className="tap" onClick={() => setPanel('profile')} aria-label="Profile"><User className="h-5 w-5" /></button>
         <button className="tap" onClick={() => setPanel('rank')} aria-label="Leaderboard"><Trophy className="h-5 w-5" /></button>
         <button className="tap relative" onClick={() => setPanel('bell')} aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}>
           <Bell className="h-5 w-5" />
           {unread > 0 && <span className="absolute right-1 top-1 min-w-[18px] rounded-full bg-nexo-blue px-1 text-center text-[11px] font-medium leading-[18px]">{unread}</span>}
         </button>
+        
+        {/* Desktop Logout Button */}
+        <div className="ml-2 border-l border-white/10 pl-2">
+          <button className="tap text-red-400 hover:text-red-300" onClick={handleLogout} aria-label="Log out">
+            <LogOut className="h-5 w-5" />
+          </button>
+        </div>
       </nav>
+
       <button className="tap relative md:hidden" onClick={() => setPanel('menu')} aria-label="Open menu">
         <Menu className="h-6 w-6" />
         {unread > 0 && <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-nexo-blue" />}
