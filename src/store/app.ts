@@ -68,11 +68,21 @@ export const useApp = create<State>()(
       dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 
       refresh: async () => {
+        // Check if we JUST logged out. If we did, do NOT fetch from API.
+        if (typeof window !== 'undefined' && localStorage.getItem('nexo_logged_out') === 'true') {
+          set({ booted: true, me: null, messages: [], currentChatId: null, recentChats: [] });
+          return;
+        }
+
         try {
           const d = await api<{ me: MeDTO; notifications: NotificationDTO[]; unread: number; bets: BetDTO[] }>('/api/state');
           const prev = get();
           const known = new Set(prev.notifications.map((n) => n.id));
           d.notifications.filter((n) => !n.isRead && !known.has(n.id) && prev.me).forEach((n) => get().toast(`Bet resolved: ${n.message}`, 'success'));
+          
+          // If we successfully logged in, remove the logged_out flag
+          if (typeof window !== 'undefined') localStorage.removeItem('nexo_logged_out');
+
           set({
             booted: true,
             me: d.me,
@@ -90,11 +100,13 @@ export const useApp = create<State>()(
         // 1. Instantly wipe the local UI state
         set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], currentChatId: null, recentChats: [], panel: null });
         
-        // 2. Destroy Zustand's persisted memory
-        try { localStorage.removeItem('nexoai-auth-storage'); } catch { /* ignore */ }
+        // 2. Destroy Zustand's persisted memory and set the logout flag
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('nexoai-auth-storage');
+          localStorage.setItem('nexo_logged_out', 'true');
+        }
 
-        // 3. Trigger the backend to destroy the cookie. 
-        // We use `keepalive: true` to ensure the request finishes even if the page reloads.
+        // 3. Trigger the backend to destroy the cookie
         try {
           fetch('/api/auth/logout', { 
             method: 'POST',
@@ -104,8 +116,7 @@ export const useApp = create<State>()(
           });
         } catch { /* ignore */ }
 
-        // 4. Force a hard server reload. 
-        // This drops all React memory and fetches a brand new page from Vercel.
+        // 4. Force a hard server reload
         window.location.href = '/'; 
       },
 
