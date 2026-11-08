@@ -16,6 +16,7 @@ export interface Msg {
 }
 export type PanelName = 'profile' | 'rank' | 'bell' | 'menu' | null;
 export interface Toast { id: string; text: string; tone: 'info' | 'error' | 'success' }
+export interface ChatMeta { id: string; title: string; ts: number; }
 
 interface State {
   booted: boolean;
@@ -24,28 +25,25 @@ interface State {
   unread: number;
   bets: Record<string, BetDTO>;
   messages: Msg[];
+  currentChatId: string | null;
+  recentChats: ChatMeta[];
   panel: PanelName;
   toasts: Toast[];
   setPanel: (p: PanelName) => void;
   toast: (text: string, tone?: Toast['tone']) => void;
   dismissToast: (id: string) => void;
   refresh: () => Promise<void>;
-  reset: () => void;
+  reset: () => Promise<void>;
+  startNewChat: () => void;
+  loadRecentChat: (id: string) => void;
+  deleteRecentChat: (id: string) => void;
   run: (command: CommandName, query: string) => Promise<void>;
   bet: (analysisId: string, choice: 'AGREE' | 'DISAGREE') => Promise<void>;
   markRead: (id?: string) => Promise<void>;
 }
 
 const uid = () => Math.random().toString(36).slice(2);
-const chatKey = (a: string) => `nexoai:chat:${a}`;
-
-function persistChat(address: string | undefined, messages: Msg[]) {
-  if (!address) return;
-  try { localStorage.setItem(chatKey(address), JSON.stringify(messages.filter((m) => !m.pending).slice(-60))); } catch { /* ignore */ }
-}
-function loadChat(address: string): Msg[] {
-  try { return JSON.parse(localStorage.getItem(chatKey(address)) ?? '[]'); } catch { return []; }
-}
+const chatKey = (addr: string, id: string) => `nexoai:chat:${addr}:${id}`;
 
 export const useApp = create<State>()(
   persist(
@@ -56,6 +54,8 @@ export const useApp = create<State>()(
       unread: 0,
       bets: {},
       messages: [],
+      currentChatId: null,
+      recentChats: [],
       panel: null,
       toasts: [],
 
@@ -73,46 +73,67 @@ export const useApp = create<State>()(
           const prev = get();
           const known = new Set(prev.notifications.map((n) => n.id));
           d.notifications.filter((n) => !n.isRead && !known.has(n.id) && prev.me).forEach((n) => get().toast(`Bet resolved: ${n.message}`, 'success'));
-          const first = !prev.me;
           set({
             booted: true,
             me: d.me,
             notifications: d.notifications,
             unread: d.unread,
             bets: Object.fromEntries(d.bets.map((b) => [b.analysisId, b])),
-            messages: first ? loadChat(d.me.address) : prev.messages,
           });
         } catch (e) {
-          if (e instanceof ApiError && e.status === 401) set({ booted: true, me: null, messages: [] });
+          if (e instanceof ApiError && e.status === 401) set({ booted: true, me: null, messages: [], currentChatId: null, recentChats: [] });
           else set({ booted: true });
         }
       },
 
       reset: async () => {
-        // 1. Clear state
-        set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], panel: null });
-
-        // 2. Clear Zustand local storage
         try {
-          localStorage.removeItem('nexoai-auth-storage');
-          
-          // 3. Forcefully delete the HTTP cookie from the browser
-          // Change 'token' below if your cookie has a different name
-          document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;";
-          document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=" + window.location.hostname + ";";
-          
-          // 4. Try the backend logout route too
+          // Wait for the backend to delete the HTTP-only cookie
           await fetch('/api/auth/logout', { method: 'POST' });
         } catch { /* ignore */ }
-
-        // 5. Force a hard reload to the home page
+        
+        set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], currentChatId: null, recentChats: [], panel: null });
+        localStorage.removeItem('nexoai-auth-storage');
+        
+        // Hard reload to wipe all memory
         window.location.href = '/'; 
       },
 
+      startNewChat: () => {
+        set({ messages: [], currentChatId: null });
+      },
+
+      loadRecentChat: (id) => {
+        const { me } = get();
+        if (!me) return;
+        try {
+          const raw = localStorage.getItem(chatKey(me.address, id));
+          if (raw) set({ messages: JSON.parse(raw), currentChatId: id });
+        } catch { /* ignore */ }
+      },
+
+      deleteRecentChat: (id) => {
+        const { me } = get();
+        if (!me) return;
+        localStorage.removeItem(chatKey(me.address, id));
+        set((s) => ({ recentChats: s.recentChats.filter((c) => c.id !== id) }));
+      },
+
       run: async (command, query) => {
+        let { currentChatId, recentChats, me } = get();
+        if (!me) return;
+
+        // If no active chat, create a new one
+        if (!currentChatId) {
+          currentChatId = uid();
+          recentChats = [{ id: currentChatId, title: `/${command} ${query}`, ts: Date.now() }, ...recentChats];
+          set({ currentChatId, recentChats });
+        }
+
         const userMsg: Msg = { id: uid(), role: 'user', text: `/${command} ${query}`, ts: Date.now() };
         const pending: Msg = { id: uid(), role: 'result', pending: true, command, query, ts: Date.now() };
         set((s) => ({ messages: [...s.messages, userMsg, pending] }));
+        
         let result: Result;
         try {
           result = await api<Result>('/api/command', { body: { command, query } });
@@ -121,8 +142,13 @@ export const useApp = create<State>()(
           if (e instanceof ApiError && e.status === 0) get().toast(msg, 'error');
           result = { kind: 'error', message: msg, retryable: true, command, query };
         }
+        
         set((s) => ({ messages: s.messages.map((m) => (m.id === pending.id ? { ...m, pending: false, result } : m)) }));
-        persistChat(get().me?.address, get().messages);
+        
+        // Save to local storage
+        try {
+          localStorage.setItem(chatKey(me.address, currentChatId), JSON.stringify(get().messages.filter(m => !m.pending)));
+        } catch { /* ignore */ }
       },
 
       bet: async (analysisId, choice) => {
@@ -145,7 +171,8 @@ export const useApp = create<State>()(
     }),
     {
       name: 'nexoai-auth-storage',
-      partialize: (state) => ({ me: state.me }),
+      // Only persist the user and recent chats list (not the active messages, so we always land on welcome screen)
+      partialize: (state) => ({ me: state.me, recentChats: state.recentChats }), 
     }
   )
 );
