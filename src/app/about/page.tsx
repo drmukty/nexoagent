@@ -34,7 +34,7 @@ export default function AboutPage() {
       content: (
         <div className="text-gray-300 leading-relaxed space-y-4">
           <p>
-            NexoAi isn't just a chatbot that spits out signals. We gamified the entire process.
+            NexoAi is not just a chatbot that spits out signals. We gamified the entire process.
           </p>
           <p>
             When you ask the AI for a 15-minute trade plan, you are given two options: <strong className="text-white">Agree</strong> or <strong className="text-white">Disagree</strong>.
@@ -56,7 +56,7 @@ export default function AboutPage() {
             We believe that real trading talent should be rewarded, not just the platform owners.
           </p>
           <p>
-            The Global Leaderboard isn't just for bragging rights. It is the core of our community ecosystem. The Top 12 traders on the leaderboard will receive future incentives and airdrops in the <strong className="text-white">$Nexo token</strong>.
+            The Global Leaderboard isn't just for bragging rights. It is the core of our community ecosystem.XP Holders will receive future incentives and airdrops in the <strong className="text-white">$Nexo token</strong>.
           </p>
           <p>
             We are shifting the power dynamic. Instead of paying monthly fees to a faceless signal group, you are proving your edge, climbing the ranks, and getting rewarded by the protocol itself.
@@ -69,13 +69,13 @@ export default function AboutPage() {
       content: (
         <div className="text-gray-300 leading-relaxed space-y-4">
           <p>
-            We take security seriously. NexoAi is 100% non-custodial.
+            NexoAi is 100% non-custodial
           </p>
           <p>
             When you use our app, your EVM private key is generated or imported directly in your browser and <strong className="text-white">never touches our servers</strong>. We only store your public wallet address so you can access your dashboard and track your XP.
           </p>
           <p>
-            To ensure fairness, all bet resolutions are handled server-side using real-time price data. You cannot manipulate the frontend to win. The leaderboard is a mathematically verifiable proof of trading accuracy.
+            let make AI Greater.
           </p>
         </div>
       )
