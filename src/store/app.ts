@@ -87,23 +87,26 @@ export const useApp = create<State>()(
       },
 
       reset: async () => {
-        // 1. Clear local state immediately so UI updates
+        // 1. Instantly wipe the local UI state
         set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], currentChatId: null, recentChats: [], panel: null });
         
-        // 2. Clear local storage
+        // 2. Destroy Zustand's persisted memory
         try { localStorage.removeItem('nexoai-auth-storage'); } catch { /* ignore */ }
 
-        // 3. Call backend to clear HTTP cookie, forcing the browser to wait
+        // 3. Trigger the backend to destroy the cookie. 
+        // We use `keepalive: true` to ensure the request finishes even if the page reloads.
         try {
-          await fetch('/api/auth/logout', { 
+          fetch('/api/auth/logout', { 
             method: 'POST',
             cache: 'no-store',
-            credentials: 'include' 
+            credentials: 'include',
+            keepalive: true 
           });
         } catch { /* ignore */ }
-        
-        // 4. Hard reload to the landing page
-        window.location.replace('/'); 
+
+        // 4. Force a hard server reload. 
+        // This drops all React memory and fetches a brand new page from Vercel.
+        window.location.href = '/'; 
       },
 
       startNewChat: () => {
