@@ -1,5 +1,6 @@
 'use client';
 import { Bell, Menu, Trophy, User } from 'lucide-react';
+import Link from 'next/link';
 import { Logo } from './Logo';
 import { useApp } from '@/store/app';
 
@@ -7,7 +8,12 @@ export function TopBar() {
   const { me, unread, setPanel } = useApp();
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-nexo-bg/80 px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-md sm:px-5">
-      <Logo />
+      
+      {/* Clicking Logo routes to Home */}
+      <Link href="/" className="transition-opacity hover:opacity-80">
+        <Logo />
+      </Link>
+
       <div className="glass flex items-center gap-2 px-3 py-1.5" aria-label="Your XP">
         <span className="label">XP</span>
         <span className="font-display text-base font-semibold tabular-nums text-nexo-green">{me?.xp ?? 0}</span>
