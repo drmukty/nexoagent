@@ -6,6 +6,7 @@ import { AnalysisResultCard } from './AnalysisResultCard';
 import { MindshareResultCard } from './MindshareResultCard';
 import { ReportResultCard } from './ReportResultCard';
 import { ErrorCard } from './ResultParts';
+import { Logo } from './Logo'; // Imported Logo
 import type { CommandName, ErrorResult } from '@/types';
 
 function retryFor(r: ErrorResult, run: (c: CommandName, q: string) => Promise<void>) {
@@ -25,9 +26,22 @@ export function ChatResultBox() {
     <main className="flex-1 overflow-y-auto px-3 py-4 sm:px-5" aria-live="polite">
       <div className="mx-auto flex max-w-3xl flex-col gap-4">
         
-        {/* The instruction box has been completely removed from here. 
-            When messages.length === 0, this simply renders nothing, 
-            allowing the Big Logo in WelcomeScreen to show. */}
+        {/* --- WELCOME SCREEN WITH LOGO & TEXT --- */}
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center mt-20 sm:mt-32 text-center px-4">
+            <div className="scale-150 mb-8">
+              <Logo size="xl" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Welcome to <span className="text-nexo-blue">NexoAi</span>
+            </h1>
+            <p className="mt-4 max-w-md text-lg text-gray-400 font-medium leading-relaxed">
+              The AI agent for DeFi trading. <br />
+              Get signals across timeframes, bet against AI analysis, and win XP.
+            </p>
+          </div>
+        )}
+        {/* -------------------------------------- */}
 
         {messages.map((m) =>
           m.role === 'user' ? (
