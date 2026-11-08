@@ -11,7 +11,7 @@ import { ChatResultBox } from './ChatResultBox';
 import { useApp } from '@/store/app';
 
 export function WelcomeScreen() {
-  const { me, messages } = useApp();
+  const { me } = useApp();
   const [modal, setModal] = useState<'create' | 'import' | null>(null);
 
   // ==========================================
@@ -55,19 +55,17 @@ export function WelcomeScreen() {
           <button className="btn-ghost flex-1" onClick={() => setModal('import')}>Import wallet</button>
         </div>
 
+        {/* About Link Box (Simplified) */}
         <div className="mt-10 w-full max-w-sm">
           <Link 
             href="/about" 
             className="group flex items-center justify-between rounded-2xl border border-white/10 bg-[#0F1116]/80 p-5 transition-all hover:border-white/20 hover:bg-white/5"
           >
-            <div className="flex items-center gap-4 text-left">
+            <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-nexo-blue/10 text-nexo-blue">
                 <Info className="h-5 w-5" />
               </div>
-              <div>
-                <h3 className="font-semibold text-white">What is NexoAi?</h3>
-                <p className="text-sm text-gray-500">Learn how the prediction arena works.</p>
-              </div>
+              <h3 className="font-semibold text-white">ABOUT</h3>
             </div>
             <span className="text-gray-500 group-hover:text-white">&rarr;</span>
           </Link>
