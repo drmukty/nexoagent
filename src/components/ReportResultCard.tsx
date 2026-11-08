@@ -1,10 +1,10 @@
 'use client';
-import { CardShell, ChartLink, DataField, NFA } from './ResultParts';
+import { CardShell, ChartLink, DataField } from './ResultParts';
 import type { ReportResult } from '@/types';
 
 export function ReportResultCard({ r }: { r: ReportResult }) {
   return (
-    <CardShell title={`Full Crypto Intel Report for ${r.token}`} footer={<>{NFA}{r.narrative === 'template' && ' Summary is template-based because the AI narrative was unavailable.'}</>}>
+    <CardShell title={`Full Crypto Intel Report for ${r.token}`}>
       <div className="space-y-1">
         <DataField label="Trend" value={r.trend} />
         <DataField label="RSI" value={r.rsi} why="Not enough 15-minute candles to compute RSI." />
