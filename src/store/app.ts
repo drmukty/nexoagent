@@ -41,7 +41,7 @@ const chatKey = (a: string) => `nexoai:chat:${a}`;
 
 function persistChat(address: string | undefined, messages: Msg[]) {
   if (!address) return;
-  try { localStorage.setItem(chatKey(address), JSON.stringify(messages.filter((m) => !m.pending).slice(-60))); } catch { /* storage may be full or blocked */ }
+  try { localStorage.setItem(chatKey(address), JSON.stringify(messages.filter((m) => !m.pending).slice(-60))); } catch { /* ignore */ }
 }
 function loadChat(address: string): Msg[] {
   try { return JSON.parse(localStorage.getItem(chatKey(address)) ?? '[]'); } catch { return []; }
@@ -92,6 +92,10 @@ export const useApp = create<State>()(
         const addr = get().me?.address;
         try { if (addr) localStorage.removeItem(chatKey(addr)); } catch { /* ignore */ }
         set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], panel: null });
+        
+        // FORCE RELOAD to clear HTTP cookies and ensure complete logout
+        window.location.href = '/'; 
+        setTimeout(() => window.location.reload(), 100);
       },
 
       run: async (command, query) => {
@@ -130,7 +134,7 @@ export const useApp = create<State>()(
     }),
     {
       name: 'nexoai-auth-storage',
-      partialize: (state) => ({ me: state.me }), // Persists the logged-in user state
+      partialize: (state) => ({ me: state.me }),
     }
   )
 );
