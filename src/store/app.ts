@@ -89,24 +89,24 @@ export const useApp = create<State>()(
       },
 
       reset: async () => {
-        const addr = get().me?.address;
-        
-        // 1. Clear local state
+        // 1. Clear state
         set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], panel: null });
 
-        try { 
-          // 2. Clear chat history from local storage
-          if (addr) localStorage.removeItem(chatKey(addr)); 
+        // 2. Clear Zustand local storage
+        try {
+          localStorage.removeItem('nexoai-auth-storage');
           
-          // 3. CLEAR ZUSTAND PERSIST CACHE (This is the bug fix)
-          localStorage.removeItem('nexoai-auth-storage'); 
-
-          // 4. Call backend to destroy the HTTP cookie
+          // 3. Forcefully delete the HTTP cookie from the browser
+          // Change 'token' below if your cookie has a different name
+          document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;";
+          document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=" + window.location.hostname + ";";
+          
+          // 4. Try the backend logout route too
           await fetch('/api/auth/logout', { method: 'POST' });
         } catch { /* ignore */ }
-        
-        // 5. Force a complete browser reload
-        window.location.replace('/'); 
+
+        // 5. Force a hard reload to the home page
+        window.location.href = '/'; 
       },
 
       run: async (command, query) => {
