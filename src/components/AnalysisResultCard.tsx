@@ -2,7 +2,7 @@
 import clsx from 'clsx';
 import { useState } from 'react';
 import { BetCountdown } from './BetCountdown';
-import { CardShell, ChartLink, NFA } from './ResultParts';
+import { CardShell, ChartLink } from './ResultParts'; // Removed NFA import
 import { useApp } from '@/store/app';
 import type { AnalyseResult } from '@/types';
 
@@ -22,7 +22,11 @@ export function AnalysisResultCard({ r }: { r: AnalyseResult }) {
   }
 
   return (
-    <CardShell title={`Analysis: ${r.symbol}`} footer={<>{NFA}{r.narrative === 'template' && ' Commentary is template-based because the AI narrative was unavailable.'}</>}>
+    // Replaced the footer so NFA is gone, leaving only the template fallback warning
+    <CardShell 
+      title={`Analysis: ${r.symbol}`} 
+      footer={r.narrative === 'template' ? ' Commentary is template-based because the AI narrative was unavailable.' : null}
+    >
       <dl className="space-y-1">
         <div className="flex gap-3"><dt className="w-36 shrink-0 text-gray-500">Token Symbol</dt><dd className="font-medium">{r.symbol}</dd></div>
         <div className="flex gap-3"><dt className="w-36 shrink-0 text-gray-500">Contract Address</dt><dd className="break-all font-mono text-xs leading-5">{r.ca}</dd></div>
