@@ -30,7 +30,16 @@ export function CreateWalletModal({ onClose }: { onClose: () => void }) {
     try {
       await signIn(signer);
       wallet.current = null; 
+      
+      // 1. Clear the logout block flag so the store allows login
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('nexo_logged_out');
+      }
+      
+      // 2. Fetch the user data (now it will succeed)
       await refresh();
+      
+      // 3. Close the modal
       onClose();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not create the account.');
