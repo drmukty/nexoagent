@@ -1,24 +1,28 @@
 'use client';
 import { Bell, Menu, Trophy, User, LogOut } from 'lucide-react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Logo } from './Logo';
 import { useApp } from '@/store/app';
 
 export function TopBar() {
-  const { me, unread, setPanel, reset } = useApp();
-  
+  const { me, unread, setPanel, reset, startNewChat } = useApp();
+  const router = useRouter();
+
+  const handleLogoClick = () => {
+    startNewChat(); // Clears messages and shows big logo
+    router.push('/');
+  };
+
   const handleLogout = () => {
     reset();
-    window.location.href = '/'; // Force reload to clear state
   };
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-nexo-bg/80 px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-md sm:px-5">
       
-      {/* Clicking Logo routes to Home */}
-      <Link href="/" className="transition-opacity hover:opacity-80">
+      <button onClick={handleLogoClick} className="transition-opacity hover:opacity-80">
         <Logo />
-      </Link>
+      </button>
 
       <div className="glass flex items-center gap-2 px-3 py-1.5" aria-label="Your XP">
         <span className="label">XP</span>
@@ -33,7 +37,6 @@ export function TopBar() {
           {unread > 0 && <span className="absolute right-1 top-1 min-w-[18px] rounded-full bg-nexo-blue px-1 text-center text-[11px] font-medium leading-[18px]">{unread}</span>}
         </button>
         
-        {/* Desktop Logout Button */}
         <div className="ml-2 border-l border-white/10 pl-2">
           <button className="tap text-red-400 hover:text-red-300" onClick={handleLogout} aria-label="Log out">
             <LogOut className="h-5 w-5" />
