@@ -1,10 +1,67 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AboutPage() {
+  // Open the first slide box by default
+  const [openSection, setOpenSection] = useState<number | null>(0);
+
+  const toggleSection = (index: number) => {
+    setOpenSection(openSection === index ? null : index);
+  };
+
+  const sections = [
+    {
+      title: 'THE CORE EXPERIENCE',
+      content: (
+        <>
+          <p className="mb-4">
+            NexoAi brings AI analysis and market intelligence into one trading workflow through tools such as <strong className="text-white">Analyse, Mindshare, Report, and Trending</strong>.
+          </p>
+          <p className="mb-4">
+            Users can research an asset, understand its market activity and sentiment, receive a structured prediction, and then put their own judgment to the test.
+          </p>
+          <p>
+            Successful predictions earn XP, while every result contributes to a user's performance history and the global leaderboard.
+          </p>
+        </>
+      ),
+    },
+    {
+      title: 'PROOF OF TRADING',
+      content: (
+        <>
+          <p className="mb-6">
+            At the heart of NexoAi is <strong className="text-white">Proof of Trading</strong>.
+          </p>
+          <p className="mb-4">
+            Predictions are timestamped and locked when submitted. Results are resolved server-side using real market data, creating a persistent record that cannot simply be edited or selectively presented.
+          </p>
+          <p>
+            The goal is simple: <strong className="text-white">replace claims of accuracy with measurable performance.</strong>
+          </p>
+        </>
+      ),
+    },
+    {
+      title: 'BUILT FOR THE FUTURE OF AI TRADING',
+      content: (
+        <>
+          <p className="mb-4">
+            NexoAi combines AI, real-time market intelligence, gamification, and verifiable performance into a new trading experience.
+          </p>
+          <p>
+            We are building toward a world where traders don't just follow AI — they <strong className="text-white">challenge it, compete with it, and prove their own edge.</strong>
+          </p>
+        </>
+      ),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-[#0A0B0D] text-gray-300 selection:bg-nexo-blue/30">
       {/* Header */}
@@ -23,14 +80,14 @@ export default function AboutPage() {
       <main className="mx-auto max-w-3xl px-6 py-16">
         
         {/* Hero */}
-        <div className="mb-16">
+        <div className="mb-16 text-center">
           <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
             About NexoAi
           </h1>
           <p className="mt-4 text-xl font-medium text-nexo-blue">
             The AI makes the call. You decide whether to back it.
           </p>
-          <div className="mt-8 space-y-4 text-base leading-7 text-gray-400">
+          <div className="mt-8 space-y-4 text-base leading-7 text-gray-400 text-left">
             <p>
               NexoAi is a decentralized AI trading arena built to make crypto predictions more transparent, measurable, and accountable.
             </p>
@@ -43,52 +100,49 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Content Sections */}
-        <div className="space-y-12">
-          
-          <section>
-            <h2 className="mb-4 text-2xl font-bold tracking-wider text-white uppercase">
-              The Core Experience
-            </h2>
-            <p className="mb-4 leading-7 text-gray-400">
-              NexoAi brings AI analysis and market intelligence into one trading workflow through tools such as <strong className="text-white">Analyse, Mindshare, Report, and Trending</strong>.
-            </p>
-            <p className="mb-4 leading-7 text-gray-400">
-              Users can research an asset, understand its market activity and sentiment, receive a structured prediction, and then put their own judgment to the test.
-            </p>
-            <p className="leading-7 text-gray-400">
-              Successful predictions earn XP, while every result contributes to a user's performance history and the global leaderboard.
-            </p>
-          </section>
+        {/* Slide Boxes (Accordion) */}
+        <div className="space-y-4">
+          {sections.map((section, index) => (
+            <div
+              key={section.title}
+              className="overflow-hidden rounded-2xl border border-white/10 bg-[#0F1116] shadow-xl transition-colors hover:border-white/20"
+            >
+              <button
+                onClick={() => toggleSection(index)}
+                className="flex w-full items-center justify-between px-6 py-5 text-left"
+                aria-expanded={openSection === index}
+              >
+                <span className="text-lg font-bold tracking-wider text-white sm:text-xl uppercase">
+                  {section.title}
+                </span>
+                <motion.div
+                  animate={{ rotate: openSection === index ? 180 : 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <ChevronDown className="h-5 w-5 text-gray-500" />
+                </motion.div>
+              </button>
 
-          <section>
-            <h2 className="mb-4 text-2xl font-bold tracking-wider text-white uppercase">
-              Proof of Trading
-            </h2>
-            <p className="mb-6 leading-7 text-gray-400">
-              At the heart of NexoAi is <strong className="text-white">Proof of Trading</strong>.
-            </p>
-            <p className="mb-4 leading-7 text-gray-400">
-              Predictions are timestamped and locked when submitted. Results are resolved server-side using real market data, creating a persistent record that cannot simply be edited or selectively presented.
-            </p>
-            <p className="leading-7 text-gray-400">
-              The goal is simple: <strong className="text-white">replace claims of accuracy with measurable performance.</strong>
-            </p>
-          </section>
-
-          <section>
-            <h2 className="mb-4 text-2xl font-bold tracking-wider text-white uppercase">
-              Built for the Future of AI Trading
-            </h2>
-            <p className="mb-4 leading-7 text-gray-400">
-              NexoAi combines AI, real-time market intelligence, gamification, and verifiable performance into a new trading experience.
-            </p>
-            <p className="leading-7 text-gray-400">
-              We are building toward a world where traders don't just follow AI  they <strong className="text-white">challenge it, compete with it, and prove their own edge.</strong>
-            </p>
-          </section>
-
+              <AnimatePresence initial={false}>
+                {openSection === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                  >
+                    <div className="border-t border-white/5 px-6 pb-7 pt-5">
+                      <div className="text-sm leading-7 text-gray-400 sm:text-base">
+                        {section.content}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
         </div>
+
       </main>
 
       {/* Footer */}
