@@ -88,14 +88,25 @@ export const useApp = create<State>()(
         }
       },
 
-      reset: () => {
+      reset: async () => {
         const addr = get().me?.address;
-        try { if (addr) localStorage.removeItem(chatKey(addr)); } catch { /* ignore */ }
-        set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], panel: null });
         
-        // FORCE RELOAD to clear HTTP cookies and ensure complete logout
-        window.location.href = '/'; 
-        setTimeout(() => window.location.reload(), 100);
+        // 1. Clear local state
+        set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], panel: null });
+
+        try { 
+          // 2. Clear chat history from local storage
+          if (addr) localStorage.removeItem(chatKey(addr)); 
+          
+          // 3. CLEAR ZUSTAND PERSIST CACHE (This is the bug fix)
+          localStorage.removeItem('nexoai-auth-storage'); 
+
+          // 4. Call backend to destroy the HTTP cookie
+          await fetch('/api/auth/logout', { method: 'POST' });
+        } catch { /* ignore */ }
+        
+        // 5. Force a complete browser reload
+        window.location.replace('/'); 
       },
 
       run: async (command, query) => {
