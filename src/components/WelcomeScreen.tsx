@@ -1,32 +1,40 @@
 'use client';
 import { AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Info } from 'lucide-react';
 import { Logo } from './Logo';
 import { CreateWalletModal } from './CreateWalletModal';
 import { ImportWalletModal } from './ImportWalletModal';
 import { SearchBox } from './SearchBox';
+import { ChatResultBox } from './ChatResultBox';
 import { useApp } from '@/store/app';
 
 export function WelcomeScreen() {
-  const { me } = useApp();
+  const { me, messages } = useApp();
   const [modal, setModal] = useState<'create' | 'import' | null>(null);
 
+  // This fixes the auto-login bug. If the user logs out (me becomes null)
+  // but the screen doesn't immediately switch to the landing page, this forces a hard reload.
+  useEffect(() => {
+    if (!me && window.location.pathname === '/') {
+      setTimeout(() => {
+        if (!useApp.getState().me) {
+          window.location.reload();
+        }
+      }, 500);
+    }
+  }, [me]);
+
   // ==========================================
-  // LOGGED IN VIEW (Dashboard)
+  // 1. LOGGED IN VIEW (Dashboard)
   // ==========================================
   if (me) {
     return (
       <div className="relative flex h-[calc(100vh-60px)] w-full flex-col justify-between overflow-hidden">
-        <div className="flex flex-1 flex-col items-center px-4 pt-10 sm:pt-20">
-          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl text-center">
-            Welcome to NexoAi
-          </h1>
-          <p className="mt-2 text-lg text-gray-400 text-center">
-            Trade smarter with AI signals and win bets.
-          </p>
-        </div>
+        
+        {/* This renders the Big Logo, Welcome Text, and Recent Chats */}
+        <ChatResultBox />
         
         {/* SearchBox docked at bottom */}
         <div className="w-full">
@@ -37,7 +45,7 @@ export function WelcomeScreen() {
   }
 
   // ==========================================
-  // PRE-LOGIN VIEW (Landing Page)
+  // 2. PRE-LOGIN VIEW (Landing Page with Wallet Buttons)
   // ==========================================
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden p-6">
@@ -53,8 +61,10 @@ export function WelcomeScreen() {
           Trade smarter with <br />
           <span className="text-nexo-blue">AI signals & win bets.</span>
         </h1>
-        <p className="mt-4 max-w-md text-balance text-gray-400">
-          Evaluate short-term predictions, agree or disagree with the AI, and track your performance on the leaderboard.
+        
+        {/* Replaced the long paragraph with your requested text */}
+        <p className="mt-4 max-w-md text-balance text-lg text-gray-400 font-medium">
+          The AI agent for DeFi trading.
         </p>
 
         <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
