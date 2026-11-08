@@ -87,16 +87,23 @@ export const useApp = create<State>()(
       },
 
       reset: async () => {
+        // 1. Clear local state immediately so UI updates
+        set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], currentChatId: null, recentChats: [], panel: null });
+        
+        // 2. Clear local storage
+        try { localStorage.removeItem('nexoai-auth-storage'); } catch { /* ignore */ }
+
+        // 3. Call backend to clear HTTP cookie, forcing the browser to wait
         try {
-          // Wait for the backend to delete the HTTP-only cookie
-          await fetch('/api/auth/logout', { method: 'POST' });
+          await fetch('/api/auth/logout', { 
+            method: 'POST',
+            cache: 'no-store',
+            credentials: 'include' 
+          });
         } catch { /* ignore */ }
         
-        set({ me: null, notifications: [], unread: 0, bets: {}, messages: [], currentChatId: null, recentChats: [], panel: null });
-        localStorage.removeItem('nexoai-auth-storage');
-        
-        // Hard reload to wipe all memory
-        window.location.href = '/'; 
+        // 4. Hard reload to the landing page
+        window.location.replace('/'); 
       },
 
       startNewChat: () => {
@@ -123,7 +130,6 @@ export const useApp = create<State>()(
         let { currentChatId, recentChats, me } = get();
         if (!me) return;
 
-        // If no active chat, create a new one
         if (!currentChatId) {
           currentChatId = uid();
           recentChats = [{ id: currentChatId, title: `/${command} ${query}`, ts: Date.now() }, ...recentChats];
@@ -145,7 +151,6 @@ export const useApp = create<State>()(
         
         set((s) => ({ messages: s.messages.map((m) => (m.id === pending.id ? { ...m, pending: false, result } : m)) }));
         
-        // Save to local storage
         try {
           localStorage.setItem(chatKey(me.address, currentChatId), JSON.stringify(get().messages.filter(m => !m.pending)));
         } catch { /* ignore */ }
@@ -171,7 +176,6 @@ export const useApp = create<State>()(
     }),
     {
       name: 'nexoai-auth-storage',
-      // Only persist the user and recent chats list (not the active messages, so we always land on welcome screen)
       partialize: (state) => ({ me: state.me, recentChats: state.recentChats }), 
     }
   )
