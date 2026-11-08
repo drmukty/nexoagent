@@ -6,7 +6,7 @@ import type { CommandName } from '@/types';
 
 const COMMANDS: { cmd: CommandName; hint: string }[] = [
   { cmd: 'analyse', hint: '15-minute trade signal' },
-  { cmd: 'mindshare', hint: 'X social intelligence' },
+  // { cmd: 'mindshare', hint: 'X social intelligence' }, // Hidden for now
   { cmd: 'report', hint: 'Full crypto intel report' },
 ];
 
@@ -26,7 +26,9 @@ export function SearchBox() {
   function send(e?: React.FormEvent) {
     e?.preventDefault();
     if (busy) return;
-    const m = value.trim().match(/^\/(analyse|mindshare|report)\s+(\S+)$/);
+    
+    // Only allow analyse and report
+    const m = value.trim().match(/^\/(analyse|report)\s+(\S+)$/);
     if (!m) {
       toast('Choose a command, then paste one contract address or ticker.', 'error');
       return;
